@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Rendering a Walk-Through Animation - V-Ray 2.0 for 3ds Max</title>
+
+    <meta name="description" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=2.0, user-scalable=yes">
+
+<script type="text/javascript" src="assets/js/jquery.min.js"></script>
+<script type="text/javascript" src="assets/js/jquery.scrollTo.min.js"></script>
+
+
+<script type="text/javascript" src="assets/js/scroll-tree.js"></script>
+
+<script type="text/javascript" src="assets/js/theme.main.js"></script>
+
+
+<link rel="stylesheet" href="assets/css/content-style.css">
+    <link rel="stylesheet" href="assets/css/search.css">
+
+<link rel="stylesheet" href="assets/css/theme.main.css">
+<link rel="stylesheet" href="assets/css/theme.colors.css">
+
+            <!-- ES5 support for older browsers, needed by lunr -->
+        <script src="js/augment.js"></script>
+        <script id="worker" type="javascript/worker">
+
+        startIndex = function() {
+            idx = lunr.Index.load(lunrIndex);
+            idx.pipeline.remove(lunr.stopWordFilter);
+            postMessage({type: "setup-complete"});
+        }
+
+        onmessage = function (event) {
+            var message = event.data;
+
+            if ((message.type === 'setup') && message.baseUrl) {
+                var url = message.baseUrl;
+                importScripts(url + 'js/lunr.js');
+                importScripts(url + 'js/lunr-extras.js');
+                importScripts(url + 'js/lunr-index.js');
+                importScripts(url + 'js/lunr-data.js');
+                startIndex();
+            }
+
+            if (idx && (message.type === 'search-request') && message.query) {
+                var searchWord = message.query;
+                var results = idx.search(searchWord).map(function (result) {
+                    return lunrData.filter(function (d) {
+                        return d.id === parseInt(result.ref, 10)
+                    })[0]
+                });
+                postMessage({type: 'search-results', results: results, query: searchWord, queryId: message.queryId});
+            }
+        }
+
+    </script>
+    </head>
+
+<body pageid="917507">
+
+<div id="ht-loader">
+    <noscript>
+        <p style="width: 100%; text-align:center; position: absolute; margin-top: 200px;">This content cannot be displayed without JavaScript.<br>Please enable JavaScript and reload the page.</p>
+    </noscript>
+</div>
+
+<div>
+   	<header id="ht-headerbar">
+    <div class="ht-headerbar-left">
+        <a href="" id="ht-menu-toggle" class="sp-aui-icon-small sp-aui-iconfont-appswitcher"></a>
+    </div>
+    <div class="ht-headerbar-right">
+            <div class="sp-aui-icon-small ht-search-index-loader ht-header-icon"></div>
+
+        <div id="ht-search">
+            <div class="ht-search-input" style="display: none;">
+              	<a href="#" class="sp-aui-icon-small sp-aui-iconfont-remove ht-search-clear"></a>
+
+                <form action="#" method="GET" id="search">
+                    <input class="search-input" type="text" placeholder="Search" tabindex="-1" autocomplete="off" name="q" value="">
+                    <input type="hidden" name="max" value="15" />
+                    <input type="submit" style="display:none" tabindex="-4"/>
+                </form>
+
+                <a href="#" id="ht-search-button" class="ht-header-icon ht-header-icon-svg">
+                                        <svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g>
+                            <path d="M29.572,28.802 L28.801,29.571 C28.515,29.857 28.187,30 27.816,30 C27.445,30 27.116,29.857 26.831,29.571 L21.392,24.134 C20.193,24.762 18.908,25.076 17.538,25.076 C15.396,25.076 13.605,24.348 12.163,22.892 C10.721,21.436 10,19.651 10,17.538 C10,15.397 10.721,13.605 12.163,12.163 C13.605,10.721 15.396,10 17.538,10 C19.651,10 21.434,10.721 22.89,12.163 C24.347,13.605 25.075,15.397 25.075,17.538 C25.075,18.937 24.761,20.222 24.132,21.393 L29.572,26.832 C29.857,27.118 30,27.446 30,27.817 C30,28.188 29.857,28.517 29.572,28.802 L29.572,28.802 Z M13.662,21.414 C14.732,22.485 16.024,23.02 17.538,23.02 C19.051,23.02 20.343,22.485 21.413,21.414 C22.484,20.344 23.019,19.052 23.019,17.538 C23.019,16.025 22.484,14.733 21.413,13.662 C20.343,12.592 19.051,12.056 17.538,12.056 C16.024,12.056 14.732,12.592 13.662,13.662 C12.591,14.733 12.056,16.025 12.056,17.538 C12.056,19.052 12.591,20.344 13.662,21.414 L13.662,21.414 Z"></path>
+                        </g>
+                    </svg>
+              	</a>
+
+                <div class="ht-search-dropdown ht-dropdown">
+                    <ul></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    </header>   	<aside id="ht-sidebar">
+    <div class="ht-sidebar-content">
+        <div class="ht-sidebar-content-scroll-container">
+            <header class="ht-sidebar-header">
+                <h1 class="ht-logo">
+                    <span class="ht-logo-label">VRAY</span>
+                    <img class="space-logo" src="spacelogo.png" />
+                </h1>
+                <a href="V-Ray_2.0_for_3ds_Max.html" class="ht-space-link">
+                    <h2>V-Ray 2.0 for 3ds Max</h2>
+                </a>
+            </header>
+
+            <nav class="ht-pages-nav">
+                <ul class="ht-pages-nav-top">
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Getting_Started.html">Getting Started</a>
+
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Licensing.html">Licensing</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="EULA.html">EULA</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="License_Server_Agreement.html">License Server Agreement</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Credits.html">Credits</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Migrating_from_V-Ray_1.5_to_V-Ray_2.0.html">Migrating from V-Ray 1.5 to V-Ray 2.0</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Features.html">Features</a>
+
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Installation.html">Installation</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Installation_Troubleshooting.html">Installation Troubleshooting</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Silent_Install_and_Uninstall.html">Silent Install and Uninstall</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Uninstall_V-Ray.html">Uninstall V-Ray</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="V-Ray_Configuration.html">V-Ray Configuration</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Licensing_System.html">Licensing System</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Troubleshooting.html">Troubleshooting</a>
+
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="V-Ray_and_3ds_Max.html">V-Ray and 3ds Max</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="MaxScript.html">MaxScript</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Texture_Baking.html">Texture Baking</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Unsupported_3ds_Max_Features.html">Unsupported 3ds Max Features</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Render_Elements.html">Render Elements</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="G-Buffer_Support.html">G-Buffer Support</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Hair_&amp;_Fur.html">Hair &amp; Fur</a>
+
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="V-Ray_RT.html">V-Ray RT</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="V-Ray_RT_FAQ.html">V-Ray RT FAQ</a>
+
+            </li>
+                            </ul>
+            </li>
+                            </ul>
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Plugins.html">Plugins</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Rendering.html">Rendering</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href=" V-Ray_Frame_Buffer.html">&nbsp;V-Ray Frame Buffer</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Global_Switches.html">Global Switches</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Image_Sampler_(Antialiasing).html">Image Sampler (Antialiasing)</a>
+
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Indirect_Illumination_(GI).html">Indirect Illumination (GI)</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Brute_Force_GI.html">Brute Force GI</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Irradiance_Map.html">Irradiance Map</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Global_Photon_Map.html">Global Photon Map</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Light_Cache.html">Light Cache</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Caustics.html">Caustics</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Environment.html">Environment</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="DMC_Sampler.html">DMC Sampler</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Color_Mapping.html">Color Mapping</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Camera.html">Camera</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Default_Displacement.html">Default Displacement</a>
+
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="System.html">System</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Presets.html">Presets</a>
+
+            </li>
+                            </ul>
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Materials.html">Materials</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayMtl.html">VRayMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRay2SidedMtl.html">VRay2SidedMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayOverrideMtl.html">VRayOverrideMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayLightMtl.html">VRayLightMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayMtlWrapper.html">VRayMtlWrapper</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayFastSSS.html">VRayFastSSS</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayFastSSS2.html">VRayFastSSS2</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayBlendMtl.html">VRayBlendMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySimbiontMtl.html">VRaySimbiontMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayCarPaintMtl.html">VRayCarPaintMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayFlakesMtl.html">VRayFlakesMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayOSLMtl.html">VRayOSLMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayHairMtl.html">VRayHairMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayGLSLMtl.html">VRayGLSLMtl</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Textures.html">Textures</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySun_and_VRaySky.html">VRaySun and VRaySky</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayDirt.html">VRayDirt</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayColor.html">VRayColor</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayMap.html">VRayMap</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayHDRI.html">VRayHDRI</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayEdgesTex.html">VRayEdgesTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayBmpFilter.html">VRayBmpFilter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayCompTex.html">VRayCompTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayDistanceTex.html">VRayDistanceTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayGLSLTex.html">VRayGLSLTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayOSLTex.html">VRayOSLTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayMultiSubTex.html">VRayMultiSubTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayPtex.html">VRayPtex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayHairInfoTex.html">VRayHairInfoTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayColor2Bump.html">VRayColor2Bump</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySky.html">VRaySky</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySoftBox.html">VRaySoftBox</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Lighting.html">Lighting</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayLight.html">VRayLight</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySun.html">VRaySun</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayIES_light.html">VRayIES light</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayAmbientLight.html">VRayAmbientLight</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Geometry.html">Geometry</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayFur.html">VRayFur</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayProxy.html">VRayProxy</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayPlane.html">VRayPlane</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Miscellaneous_Plugins.html">Miscellaneous Plugins</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayShadow.html">VRayShadow</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayShadowMap.html">VRayShadowMap</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayDisplacementMod.html">VRayDisplacementMod</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayToon.html">VRayToon</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayEnvironmentFog.html">VRayEnvironmentFog</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayPhysicalCamera.html">VRayPhysicalCamera</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySphereFade.html">VRaySphereFade</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayStereoscopic.html">VRayStereoscopic</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayStereoRig.html">VRayStereoRig</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayLensEffects.html">VRayLensEffects</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayLightMeter.html">VRayLightMeter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayExposureControl.html">VRayExposureControl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayBPTracer.html">VRayBPTracer</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayOrnatrixMod.html">VRayOrnatrixMod</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayHairFarmMod.html">VRayHairFarmMod</a>
+
+            </li>
+                            </ul>
+            </li>
+                            </ul>
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Object_and_Light_Properties.html">Object and Light Properties</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Distributed_Rendering.html">Distributed Rendering</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="GLSL_Support.html">GLSL Support</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="OSL_Support.html">OSL Support</a>
+
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Tools.html">Tools</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Irradiance_Map_Viewer.html">Irradiance Map Viewer</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href=".obj_and_.ply_to_.vrmesh_Converter_.html">.obj and .ply to .vrmesh Converter*</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href=".vrimg_to_.exr_Converter.html">.vrimg to .exr Converter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Image_to_Tiled_Multiresolution_OpenEXR_Converter.html">Image to Tiled Multiresolution OpenEXR Converter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="V-Ray_Scene_Exporter.html">V-Ray Scene Exporter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Lens_Analysis_Utility.html">Lens Analysis Utility</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Filter_Generator.html">Filter Generator</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Tutorials.html">Tutorials</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Irradiance_Map_Modes__Rendering_a_Static_Scene_from_Multiple_Views.html">Irradiance Map Modes: Rendering a Static Scene from Multiple Views</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link current" href="Rendering_a_Walk-Through_Animation.html">Rendering a Walk-Through Animation</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Photon_Mapping.html">Photon Mapping</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Displacement_Mapping.html">Displacement Mapping</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_an_Interior_Scene.html">Rendering an Interior Scene</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Progressive_Path_Tracing_with_V-Ray.html">Progressive Path Tracing with V-Ray</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_Surface_Interfaces.html">Rendering Surface Interfaces</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_an_Animation_with_Moving_Objects.html">Rendering an Animation with Moving Objects</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_an_Animation_with_Moving_Objects_II.html">Rendering an Animation with Moving Objects II</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Basic_Texture_Baking_with_V-Ray,_Part_I.html">Basic Texture Baking with V-Ray, Part I</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Universal_V-Ray_Settings.html">Universal V-Ray Settings</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_PTex_Textures_from_Mudbox.html">Rendering PTex Textures from Mudbox</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Theory.html">Theory</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Raytracing_Overview.html">Raytracing Overview</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="GI_Methods.html">GI Methods</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Terminology.html">Terminology</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Frequently_Asked_Questions.html">Frequently Asked Questions</a>
+
+            </li>
+                                    </ul>
+            </nav>
+        </div>
+    </div>
+
+</aside></div>
+
+<div id="ht-wrap-container">
+
+            
+    <div id="ht-sidebar-dragbar">
+    <div class="ht-sidebar-drag-handle">
+        <span class="drag-handle-1"></span>
+        <span class="drag-handle-2"></span>
+        <span class="drag-handle-3"></span>
+    </div>
+</div>
+    <article id="ht-content" class="ht-content">
+        <header class="ht-content-header">
+            <div id="ht-breadcrumb">
+    <ul>
+        <li><a href="V-Ray_2.0_for_3ds_Max.html">V-Ray 2.0 for 3ds Max</a></li>
+                                                                                     <li><a href="Tutorials.html">Tutorials</a></li>
+                                                            </ul>
+</div>            <h1 id="src-2557523"> <span>Rendering a Walk-Through Animation</span></h1>
+        </header>
+
+        <div id="main-content" class="wiki-content sp-grid-section" data-index-for-search="true">
+
+    <p  >    </p>
+<ul class="toc-indentation "><li class=" ">    <p  ><a   href="#src-2557523_RenderingaWalk-ThroughAnimation-RenderingaWalk-ThroughAnimationOverview">Rendering a Walk-Through Animation Overview</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557523_safe-id-UmVuZGVyaW5nYVdhbGstVGhyb3VnaEFuaW1hdGlvbi1QYXJ0STpDYWxjdWxhdGluZ3RoZUxpZ2h0Q2FjaGU">Part I: Calculating the Light Cache</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557523_safe-id-UmVuZGVyaW5nYVdhbGstVGhyb3VnaEFuaW1hdGlvbi1QYXJ0SUk6Q2FsY3VsYXRpbmd0aGVJcnJhZGlhbmNlTWFw">Part II: Calculating the Irradiance Map</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557523_safe-id-UmVuZGVyaW5nYVdhbGstVGhyb3VnaEFuaW1hdGlvbi1QYXJ0SUlJOlJlbmRlcmluZ3RoZUZpbmFsQW5pbWF0aW9u">Part III: Rendering the Final Animation</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557523_RenderingaWalk-ThroughAnimation-Notes">Notes</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557523_RenderingaWalk-ThroughAnimation-Discussion">Discussion</a>    </p>
+</li></ul>    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/2557523/TutWalkThrough_1.png" alt="images/download/attachments/2557523/TutWalkThrough_1.png"   />
+        </p>
+    <div class="section section-1" id="src-2557523_RenderingaWalk-ThroughAnimation-RenderingaWalk-ThroughAnimationOverview">
+        <h1 class="heading "><span>Rendering a Walk-Through Animation Overview</span></h1>
+    <p  >    <span style="color: #000000;">
+In this tutorial, we will render a walk-through animation of a static scene, where nothing but the camera moves. We will use global illumination to light the scene, which makes the task somewhat complicated. GI is usually too slow to calculate from scratch and with sufficient quality for each frame of the animation. To optimize this process and save rendering time, we can use the fact that the scene is static and the camera is the only thing that moves. Most of the GI solutions used in V-Ray (irradiance map, photon map, light cache) are either fully or partially view-independent, and we can use this fact to reduce rendering times.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+For this tutorial, we will use the irradiance map as a primary GI engine, and the light cache as a secondary engine. To make the process easier to understand, we will render the scene in three steps.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+In the first step, we will calculate the light cache for the entire animation. In the second step, we will calculate the irradiance map. In the third step, we will render the final animation.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Note that you don't have to use this method to render walk-throughs. You can always use a slower brute-force approach and avoid having to deal with all the issues around precalculating the various GI solutions. However, you pay for this with render times.    </span>
+    </p>
+    </div>
+    <div class="section section-1" id="src-2557523_safe-id-UmVuZGVyaW5nYVdhbGstVGhyb3VnaEFuaW1hdGlvbi1QYXJ0STpDYWxjdWxhdGluZ3RoZUxpZ2h0Q2FjaGU">
+        <h1 class="heading "><span>Part I: Calculating the Light Cache</span></h1>
+    <p  >    <span style="color: #000000;">
+1.1. Open the starting    </span>
+ <a  class="unresolved" href="#src-2557523">scene</a>.    </p>
+    <p  >    <span style="color: #000000;">
+1.2. Assign V-Ray as the current renderer.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.3. Set the Background color in the 3dsmax Environment and Effects window to RGB 252, 252, 252.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.4. In the Render scene dialog, turn Global illumination on and set both the Primary GI engine and the Secondary GI engine to     </span>
+<a  class="unresolved" href="#src-2557523">Light Cache</a>.    </p>
+    <p  >    <span style="color: #000000;">
+1.5. Set the    </span>
+     <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Image sampler type</a>    </span>
+    <span style="color: #000000;">
+ to Fixed for faster previews.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.6. Turn on     </span>
+    <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Show calc. phase</a>    </span>
+     <span style="color: #000000;">
+in the Light cache rollout.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.7. Check the skylight Override MAX's checkbox in the    </span>
+ <a  class="unresolved" href="#src-2557523">Environment</a>     <span style="color: #000000;">
+rollout.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.8. Set the skylight color to RGB 252, 253, 255 and HSV (156, 3, 255).    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.9. Set the skylight color     </span>
+    <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Multiplier</a>    </span>
+    <span style="color: #000000;">
+ to 4.0.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.10. Uncheck the    </span>
+     <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Default lights</a>    </span>
+    <span style="color: #000000;">
+ checkbox in the Global switches rollout. This will remove the default max lighting in the scene and it will by lit only by the environment skylight.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.11. Go to the     </span>
+<a  class="unresolved" href="#src-2557523">Camera</a>    <span style="color: #000000;">
+ rollout and change the    </span>
+     <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Camera type</a>    </span>
+     <span style="color: #000000;">
+to Fish eye.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.12. Uncheck the     </span>
+    <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Auto-fit</a>    </span>
+     <span style="color: #000000;">
+checkbox, change the    </span>
+     <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Dist</a>    </span>
+    <span style="color: #000000;">
+ value to 1.0 and    </span>
+     <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Curve</a>    </span>
+    <span style="color: #000000;">
+ to 0.35. We set the camera to Fish-eye to produce a more interesting effect.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+    </span>
+    <span style="color: #000000;">
+1.13. Render frames     </span>
+    <span style="color: #000000;">
+0    </span>
+    <span style="color: #000000;">
+ and     </span>
+    <span style="color: #000000;">
+360    </span>
+    <span style="color: #000000;">
+ for reference.    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/2557523/TutWalkThrough_2.png" alt="images/download/attachments/2557523/TutWalkThrough_2.png"   />
+        </p>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/2557523/TutWalkThrough_3.png" alt="images/download/attachments/2557523/TutWalkThrough_3.png"   />
+        </p>
+    <p  >    <span style="color: #000000;">
+The light cache doesn't look bad, but we will need to calculate it for the entire walk-through animation, and not for a single frame only. Note that this is not strictly necessary - we can render the animation with the light cache being calculated each frame; however, rendering it only once will save rendering time, especially for long animations.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.14. Set the light cache    </span>
+     <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Mode</a>    </span>
+     <span style="color: #000000;">
+to Fly-through. Make sure that the timeline animation range matches the range which you want to render. This is important because the light cache will look at the current timeline animation range when calculating the fly-through cache.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Since all the light cache samples will be distributed among all the animation frames, we will need to increase the light cache     </span>
+    <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Subdivs</a>    </span>
+     <span style="color: #000000;">
+value. The exact value depends on the quality you want to achieve and on your specific animation. If the camera moves slowly, or the path is relatively short (e.g. just one room of a house) then you can use lower Subdivs value, since most of the samples will fall in the same place anyways. If the camera moves quickly or covers larger parts of the scene, you will need more samples to get adequate coverage everywhere.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.15. Set the light cache Subdivs to 2000.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.16. Render frame 360 for example. Note that although we render only one frame, the Fly-through mode forces the light cache to be computed for the entire animation:    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/2557523/TutWalkThrough_4.png" alt="images/download/attachments/2557523/TutWalkThrough_4.png"   />
+        </p>
+    <p  >    <span style="color: #000000;">
+During the fly-through mode, the preview display of the light cache is not very useful, since it shows samples from the entire camera path. The following image shows the preview display while the light cache is being calculated:    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/2557523/TutWalkThrough_5.png" alt="images/download/attachments/2557523/TutWalkThrough_5.png"   />
+        </p>
+    <p  >    <span style="color: #000000;">
+Now that we have computed the light cache, we need to see if it is good enough for our needs. We can do this by rendering several different frames with the same light cache.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.17. Save the light cache to disk, for example, to lightcache.vrlmap.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.18. Set the light cache Mode to From file and select the saved file name.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.19. Change the Filter in the    </span>
+ <a  class="unresolved" href="#src-2557523">Light cache</a>     <span style="color: #000000;">
+rollout from Nearest to None. Now we can see better the samples' size.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.20. Render frame 435:    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/2557523/TutWalkThrough_6.png" alt="images/download/attachments/2557523/TutWalkThrough_6.png"   />
+        </p>
+    <p  >    <span style="color: #000000;">
+You can notice that in places where the camera gets close to a wall in the scene, the light cache samples are smaller and more noisy. This is because the light cache     </span>
+    <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Scale</a>    </span>
+     <span style="color: #000000;">
+is set to Screen by default. This is fine for still images, but for animation we would like a more even sample distribution. To achieve this, we will need to use the World option.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.21. Set the light cache Scale to World.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Now we have to determine a good    </span>
+     <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Sample size</a>    </span>
+     <span style="color: #000000;">
+for the scene. This can be done, for example, by creating a geosphere directly in the camera viewport or a Tape object and using it to visualize the sample size. For our scene, a sample size of about 2.0 seems to be good enough (the scene is in Generic units). In general, you should make    </span>
+    <span style="color: #000000;">
+ the Sample size as large as possible without getting artifacts (light leaks, etc.). Even if you are getting some light leaks, it may be possible to remove them by reducing the filter Interp. samples value.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.22. Set the light cache Sample size to 2.0.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Keep in mind that when you use the World scale, you must make sure that your scene is not too large (e.g. with a large ground plane) or that the light cache samples are not too small, otherwise you can run out of memory for the light cache. This is not such a problem for the Screen mode, since surfaces that are far away from the camera will get fewer samples anyways. For exterior scenes, it is recommended to use the Screenmode always.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.23. Change the light cache Mode back to Single frame and lower the Subdivs    </span>
+    <span style="color: #000000;">
+ to 500 just to check if the sample size is adequate. Here is an example of frame 435:    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image confluence-external-resource image-center" src="images/help.chaosgroup.com/vray/help/300R1/images/tutorials/imap2/lightcache06.png" alt="images/help.chaosgroup.com/vray/help/300R1/images/tutorials/imap2/lightcache06.png"   />
+        </p>
+    <p  >    <span style="color: #000000;">
+The samples are equal in size everywhere and they are just big enough so we don't get artifacts on the image.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.24. Set the light cache Mode to Fly-through again.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.25. To smooth out the light cache a little bit, increase the the Subdivs to 3300.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.26. Change the Filter back to Nearest.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.27. Render frame 360:    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/2557523/TutWalkThrough_7.png" alt="images/download/attachments/2557523/TutWalkThrough_7.png"   />
+        </p>
+    <p  >    <span style="color: #000000;">
+The calculation time is longer now due to the increased samples number.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.28. Save the light cache and set the mode to From file again.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+You may notice that the light cache file has become bigger in size. This is because there are more samples in the light cache, partly because of the World scale mode - the same amount of samples are taken everywhere in the scene (in Screen mode, the sample size increases as the samples get farther from the camera, which leads to less samples).    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Now we can render several different frames to make sure that the light cache is adequate for our animation.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+1.29. Render a few frames.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+It looks like the light cache is good and we can move on to the next part - calculating the irradiance map.    </span>
+    </p>
+    </div>
+    <div class="section section-1" id="src-2557523_safe-id-UmVuZGVyaW5nYVdhbGstVGhyb3VnaEFuaW1hdGlvbi1QYXJ0SUk6Q2FsY3VsYXRpbmd0aGVJcnJhZGlhbmNlTWFw">
+        <h1 class="heading "><span>Part II: Calculating the Irradiance Map</span></h1>
+    <p  >    <span style="color: #000000;">
+Compared to the light cache, the irradiance map may take significantly more time to calculate. This is because the light cache provides a very crude and undetailed lighting solution. The irradiance map, on the other hand, takes care of the small GI shadows in the scene.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Note that the irradiance map cannot be calculated through backburner. It must be calculated on a single machine. This is because we will use the Multiframe incremental    </span>
+     <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Mode</a>    </span>
+     <span style="color: #000000;">
+for the irradiance map.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+2.1. Set the primary engine to Irradiance map.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+2.2. Set the irradiance map Mode to Multiframe incremental.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+2.3. Check the     </span>
+    <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Show calc. phase</a>    </span>
+     <span style="color: #000000;">
+checkbox.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Since the camera moves quite slowly, there is no need to render every single frame of the animation at this stage. We can get an adequate irradiance map by rendering every 10th frame, for example. If the camera moves faster, we will need to render more frames, for example every 5th frame.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+2.4. Set 3ds Max to render every 5th frame from the Common tab of the Render scene dialog.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+2.5. Turn on the Don't render final image option in the    </span>
+ <a  class="unresolved" href="#src-2557523">Global switches</a>    <span style="color: #000000;">
+ rollout, since we are not rendering the final animation yet and we don't need the final frames.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+    </span>
+    <span style="color: #000000;">
+2.6. Render the entire sequence.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+2.7. Save the irradiance map to file, for example, irmap.vrmap.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+2.8. Set the irradiance map Mode to From File with the saved file.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Now we have one irradiance map for entire animation sequence. We can render a few frames to make sure everything is ok.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+2.9. Turn off the Don't render final image option.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+2.10. Render frames 0 and 360 from the animation:    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/2557523/TutWalkThrough_9.png" alt="images/download/attachments/2557523/TutWalkThrough_9.png"   />
+        </p>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/2557523/TutWalkThrough_10.png" alt="images/download/attachments/2557523/TutWalkThrough_10.png"   />
+        </p>
+    <p  >    <span style="color: #000000;">
+The two images above were rendered with the settings used for the final animation in Part III.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Now we are ready to render the final animation.    </span>
+    </p>
+    </div>
+    <div class="section section-1" id="src-2557523_safe-id-UmVuZGVyaW5nYVdhbGstVGhyb3VnaEFuaW1hdGlvbi1QYXJ0SUlJOlJlbmRlcmluZ3RoZUZpbmFsQW5pbWF0aW9u">
+        <h1 class="heading "><span>Part III: Rendering the Final Animation</span></h1>
+    <p  >    <span style="color: #000000;">
+For the final animation you can use backburner with the saved irradiance map either on the client pc or locally on each server machine. In either case, you must make sure that each render slave can find the irradiance map in the location specified in the From file parameter for the irradiance map.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+3.1. Set the     </span>
+    <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Image sampler</a>    </span>
+     <span style="color: #000000;">
+type to Adaptive subdivision with    </span>
+     <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Min/Max rate</a>    </span>
+     <span style="color: #000000;">
+to 0/3 for better antialiasing quality. You can also check the Normals checkbox to avoid flickering problems with small details in the scene.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+3.2. Make sure the irradiance map    </span>
+     <span style="color: #5555cc;">
+<a  class="unresolved" href="#src-2557523">Interpolation type</a>    </span>
+     <span style="color: #000000;">
+is set to Density-based. This will enable the irradiance map to pick the closest available samples from the cached solution.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+3.3. Set 3ds M    </span>
+    <span style="color: #000000;">
+ax to render every single frame.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+3.4. Render the final animation.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Here is the     </span>
+<a  class="unresolved" href="#src-2557523">ending scene</a>.    </p>
+    <p  >    <span style="color: #000000;">
+Here is the    </span>
+ <a   href="attachments_4423793_1_fly-through.avi">final animation</a>     <span style="color: #000000;">
+that you should get if you have followed the tutorial correctly (8 MB).    </span>
+Your browser does not support the HTML5 video element    </p>
+    </div>
+    <div class="section section-1" id="src-2557523_RenderingaWalk-ThroughAnimation-Notes">
+        <h1 class="heading "><span>Notes</span></h1>
+<ul class=" "><li class=" ">    <p  >    <span style="color: #000000;">
+We are not using glossy reflections in this scene, but if you are using them and not using the Use light cache for glossy rays option at the same time, then you can set the Secondary GI engine to None for the final animation. This is because you won't need the light cache and turning it off will save memory.    </span>
+    </p>
+</li></ul>    </div>
+    <div class="section section-1" id="src-2557523_RenderingaWalk-ThroughAnimation-Discussion">
+        <h1 class="heading "><span>Discussion</span></h1>
+    <p  >    <span style="color: #000000;">
+In this section, we have added some questions about this tutorial that were asked on our online forum, along with the respective answers.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Q: Did you render out to consecutive images and then compile the avi or was it straight out to avi?    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+A: The animation was first rendered out to .png images, and then compiled into an .avi. That way, you won't lose all rendered frames if something goes wrong in the middle of the rendering... and also you can play with the compression settings later.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Q: Why did you choose Multiframe incremental over Incremental add to current map mode? What is the difference between the two that would cause you to choose one over the other? I ask because I've never used Multiframe incremental and have always used the Incremental add to current map.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+A: The only difference is that the Multiframe incremental mode will delete the map in memory at the start of the rendering. With the Incremental add mode, the current map is not deleted.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Q: I just wanted to clarify... It is possible to use Incremental add to current map mode in conjunction with backburner without any problems (i.e. flicker)? Does backburner handle frame allocation okay without max saving any files? Reading your post above, I get the feeling you are suggesting that you need to send different sections of the animation to each render-node.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+A: Yes, you can render different sections on different nodes, but you must merge the resulting irradiance maps manually with the irradiance map viewer in the end, before rendering the final animation. Also, you must make sure that each section is allocated to one single render node only.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Q: I must make an animation with a spray which you can see in the image upload, and I have many glossy reflect and refract, if I follow your tut how can I make my final setup? With light cache for second bounce and Use light cache for glossy rays or without light cache and none for the second bounce? Does Use light cache for glossy rays and ir map in first bounce work fine?    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+A: You can have the light cache saved with the irradiance map. If done so, you can actually just turn off secondary bounces which will save memory as you won't have to load the light cache. However, if you have the light cache help precompute the glossiness with the Use light cache for glossy rays option, then you'll need to go ahead and load the light cache when rendering.    </span>
+    </p>
+    <p  >    </p>
+    <p  >    </p>
+    </div>
+        </div>
+
+    </article>
+
+
+            <nav id="ht-post-nav">
+                <a href="Irradiance_Map_Modes__Rendering_a_Static_Scene_from_Multiple_Views.html" class="ht-post-nav-prev">
+            <svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                 xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+                <g id="ht-icon-prev" sketch:type="MSArtboardGroup">
+                    <path fill="#000000" d="M16,8 L16,6 L6,6 L6,16 L8,16 L8,8 L16,8 Z" id="Rectangle-2"
+                          sketch:type="MSShapeGroup"
+                          transform="translate(11.000000, 11.000000) rotate(-45.000000) translate(-11.000000, -11.000000) "></path>
+                </g>
+            </svg>
+            <span>Irradiance Map Modes: Rendering a Static Scene from Multiple Views</span>
+        </a>
+                <a href="Photon_Mapping.html" class="ht-post-nav-next">
+            <svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                 xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+                <g id="ht-icon-next" sketch:type="MSArtboardGroup">
+                    <path fill="#000000" d="M16,8 L16,6 L6,6 L6,16 L8,16 L8,8 L16,8 Z" id="Rectangle-2"
+                          sketch:type="MSShapeGroup"
+                          transform="translate(11.000000, 11.000000) rotate(-225.000000) translate(-11.000000, -11.000000) "></path>
+                </g>
+            </svg>
+            <span>Photon Mapping</span>
+        </a>
+    </nav>    
+            
+            <article id="html-search-results" class="ht-content" style="display: none;">
+            <header class="ht-content-header">
+                <div id="ht-spacetitle">
+                    <ul>
+                        <li><a href="V-Ray_2.0_for_3ds_Max.html">V-Ray 2.0 for 3ds Max</a></li>
+                    </ul>
+                </div>
+                <h1>Search results</h1>
+            </header>
+            <div id="search-results"></div>
+        </article>
+    
+    <footer id="ht-footer">
+    <a href="#" id="ht-jump-top" class="sp-aui-icon-small sp-aui-iconfont-arrows-up"></a>
+</footer></div>
+
+<div>
+    <div id="ht-mq-detect"></div>
+</div>
+
+    <script src="js/lunr.js"></script>
+    <script src="js/lunr-extras.js"></script>
+    <script src="assets/js/scroll-search.js"></script>
+
+</body>
+</html>

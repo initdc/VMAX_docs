@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>VRayHDRI - V-Ray 2.0 for 3ds Max</title>
+
+    <meta name="description" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=2.0, user-scalable=yes">
+
+<script type="text/javascript" src="assets/js/jquery.min.js"></script>
+<script type="text/javascript" src="assets/js/jquery.scrollTo.min.js"></script>
+
+
+<script type="text/javascript" src="assets/js/scroll-tree.js"></script>
+
+<script type="text/javascript" src="assets/js/theme.main.js"></script>
+
+
+<link rel="stylesheet" href="assets/css/content-style.css">
+    <link rel="stylesheet" href="assets/css/search.css">
+
+<link rel="stylesheet" href="assets/css/theme.main.css">
+<link rel="stylesheet" href="assets/css/theme.colors.css">
+
+            <!-- ES5 support for older browsers, needed by lunr -->
+        <script src="js/augment.js"></script>
+        <script id="worker" type="javascript/worker">
+
+        startIndex = function() {
+            idx = lunr.Index.load(lunrIndex);
+            idx.pipeline.remove(lunr.stopWordFilter);
+            postMessage({type: "setup-complete"});
+        }
+
+        onmessage = function (event) {
+            var message = event.data;
+
+            if ((message.type === 'setup') && message.baseUrl) {
+                var url = message.baseUrl;
+                importScripts(url + 'js/lunr.js');
+                importScripts(url + 'js/lunr-extras.js');
+                importScripts(url + 'js/lunr-index.js');
+                importScripts(url + 'js/lunr-data.js');
+                startIndex();
+            }
+
+            if (idx && (message.type === 'search-request') && message.query) {
+                var searchWord = message.query;
+                var results = idx.search(searchWord).map(function (result) {
+                    return lunrData.filter(function (d) {
+                        return d.id === parseInt(result.ref, 10)
+                    })[0]
+                });
+                postMessage({type: 'search-results', results: results, query: searchWord, queryId: message.queryId});
+            }
+        }
+
+    </script>
+    </head>
+
+<body pageid="917507">
+
+<div id="ht-loader">
+    <noscript>
+        <p style="width: 100%; text-align:center; position: absolute; margin-top: 200px;">This content cannot be displayed without JavaScript.<br>Please enable JavaScript and reload the page.</p>
+    </noscript>
+</div>
+
+<div>
+   	<header id="ht-headerbar">
+    <div class="ht-headerbar-left">
+        <a href="" id="ht-menu-toggle" class="sp-aui-icon-small sp-aui-iconfont-appswitcher"></a>
+    </div>
+    <div class="ht-headerbar-right">
+            <div class="sp-aui-icon-small ht-search-index-loader ht-header-icon"></div>
+
+        <div id="ht-search">
+            <div class="ht-search-input" style="display: none;">
+              	<a href="#" class="sp-aui-icon-small sp-aui-iconfont-remove ht-search-clear"></a>
+
+                <form action="#" method="GET" id="search">
+                    <input class="search-input" type="text" placeholder="Search" tabindex="-1" autocomplete="off" name="q" value="">
+                    <input type="hidden" name="max" value="15" />
+                    <input type="submit" style="display:none" tabindex="-4"/>
+                </form>
+
+                <a href="#" id="ht-search-button" class="ht-header-icon ht-header-icon-svg">
+                                        <svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g>
+                            <path d="M29.572,28.802 L28.801,29.571 C28.515,29.857 28.187,30 27.816,30 C27.445,30 27.116,29.857 26.831,29.571 L21.392,24.134 C20.193,24.762 18.908,25.076 17.538,25.076 C15.396,25.076 13.605,24.348 12.163,22.892 C10.721,21.436 10,19.651 10,17.538 C10,15.397 10.721,13.605 12.163,12.163 C13.605,10.721 15.396,10 17.538,10 C19.651,10 21.434,10.721 22.89,12.163 C24.347,13.605 25.075,15.397 25.075,17.538 C25.075,18.937 24.761,20.222 24.132,21.393 L29.572,26.832 C29.857,27.118 30,27.446 30,27.817 C30,28.188 29.857,28.517 29.572,28.802 L29.572,28.802 Z M13.662,21.414 C14.732,22.485 16.024,23.02 17.538,23.02 C19.051,23.02 20.343,22.485 21.413,21.414 C22.484,20.344 23.019,19.052 23.019,17.538 C23.019,16.025 22.484,14.733 21.413,13.662 C20.343,12.592 19.051,12.056 17.538,12.056 C16.024,12.056 14.732,12.592 13.662,13.662 C12.591,14.733 12.056,16.025 12.056,17.538 C12.056,19.052 12.591,20.344 13.662,21.414 L13.662,21.414 Z"></path>
+                        </g>
+                    </svg>
+              	</a>
+
+                <div class="ht-search-dropdown ht-dropdown">
+                    <ul></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    </header>   	<aside id="ht-sidebar">
+    <div class="ht-sidebar-content">
+        <div class="ht-sidebar-content-scroll-container">
+            <header class="ht-sidebar-header">
+                <h1 class="ht-logo">
+                    <span class="ht-logo-label">VRAY</span>
+                    <img class="space-logo" src="spacelogo.png" />
+                </h1>
+                <a href="V-Ray_2.0_for_3ds_Max.html" class="ht-space-link">
+                    <h2>V-Ray 2.0 for 3ds Max</h2>
+                </a>
+            </header>
+
+            <nav class="ht-pages-nav">
+                <ul class="ht-pages-nav-top">
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Getting_Started.html">Getting Started</a>
+
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Licensing.html">Licensing</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="EULA.html">EULA</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="License_Server_Agreement.html">License Server Agreement</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Credits.html">Credits</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Migrating_from_V-Ray_1.5_to_V-Ray_2.0.html">Migrating from V-Ray 1.5 to V-Ray 2.0</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Features.html">Features</a>
+
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Installation.html">Installation</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Installation_Troubleshooting.html">Installation Troubleshooting</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Silent_Install_and_Uninstall.html">Silent Install and Uninstall</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Uninstall_V-Ray.html">Uninstall V-Ray</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="V-Ray_Configuration.html">V-Ray Configuration</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Licensing_System.html">Licensing System</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Troubleshooting.html">Troubleshooting</a>
+
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="V-Ray_and_3ds_Max.html">V-Ray and 3ds Max</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="MaxScript.html">MaxScript</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Texture_Baking.html">Texture Baking</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Unsupported_3ds_Max_Features.html">Unsupported 3ds Max Features</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Render_Elements.html">Render Elements</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="G-Buffer_Support.html">G-Buffer Support</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Hair_&amp;_Fur.html">Hair &amp; Fur</a>
+
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="V-Ray_RT.html">V-Ray RT</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="V-Ray_RT_FAQ.html">V-Ray RT FAQ</a>
+
+            </li>
+                            </ul>
+            </li>
+                            </ul>
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Plugins.html">Plugins</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Rendering.html">Rendering</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href=" V-Ray_Frame_Buffer.html">&nbsp;V-Ray Frame Buffer</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Global_Switches.html">Global Switches</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Image_Sampler_(Antialiasing).html">Image Sampler (Antialiasing)</a>
+
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Indirect_Illumination_(GI).html">Indirect Illumination (GI)</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Brute_Force_GI.html">Brute Force GI</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Irradiance_Map.html">Irradiance Map</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Global_Photon_Map.html">Global Photon Map</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Light_Cache.html">Light Cache</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Caustics.html">Caustics</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Environment.html">Environment</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="DMC_Sampler.html">DMC Sampler</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Color_Mapping.html">Color Mapping</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Camera.html">Camera</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Default_Displacement.html">Default Displacement</a>
+
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="System.html">System</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Presets.html">Presets</a>
+
+            </li>
+                            </ul>
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Materials.html">Materials</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayMtl.html">VRayMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRay2SidedMtl.html">VRay2SidedMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayOverrideMtl.html">VRayOverrideMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayLightMtl.html">VRayLightMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayMtlWrapper.html">VRayMtlWrapper</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayFastSSS.html">VRayFastSSS</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayFastSSS2.html">VRayFastSSS2</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayBlendMtl.html">VRayBlendMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySimbiontMtl.html">VRaySimbiontMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayCarPaintMtl.html">VRayCarPaintMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayFlakesMtl.html">VRayFlakesMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayOSLMtl.html">VRayOSLMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayHairMtl.html">VRayHairMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayGLSLMtl.html">VRayGLSLMtl</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Textures.html">Textures</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySun_and_VRaySky.html">VRaySun and VRaySky</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayDirt.html">VRayDirt</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayColor.html">VRayColor</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayMap.html">VRayMap</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link current" href="VRayHDRI.html">VRayHDRI</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayEdgesTex.html">VRayEdgesTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayBmpFilter.html">VRayBmpFilter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayCompTex.html">VRayCompTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayDistanceTex.html">VRayDistanceTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayGLSLTex.html">VRayGLSLTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayOSLTex.html">VRayOSLTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayMultiSubTex.html">VRayMultiSubTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayPtex.html">VRayPtex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayHairInfoTex.html">VRayHairInfoTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayColor2Bump.html">VRayColor2Bump</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySky.html">VRaySky</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySoftBox.html">VRaySoftBox</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Lighting.html">Lighting</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayLight.html">VRayLight</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySun.html">VRaySun</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayIES_light.html">VRayIES light</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayAmbientLight.html">VRayAmbientLight</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Geometry.html">Geometry</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayFur.html">VRayFur</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayProxy.html">VRayProxy</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayPlane.html">VRayPlane</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Miscellaneous_Plugins.html">Miscellaneous Plugins</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayShadow.html">VRayShadow</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayShadowMap.html">VRayShadowMap</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayDisplacementMod.html">VRayDisplacementMod</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayToon.html">VRayToon</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayEnvironmentFog.html">VRayEnvironmentFog</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayPhysicalCamera.html">VRayPhysicalCamera</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySphereFade.html">VRaySphereFade</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayStereoscopic.html">VRayStereoscopic</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayStereoRig.html">VRayStereoRig</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayLensEffects.html">VRayLensEffects</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayLightMeter.html">VRayLightMeter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayExposureControl.html">VRayExposureControl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayBPTracer.html">VRayBPTracer</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayOrnatrixMod.html">VRayOrnatrixMod</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayHairFarmMod.html">VRayHairFarmMod</a>
+
+            </li>
+                            </ul>
+            </li>
+                            </ul>
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Object_and_Light_Properties.html">Object and Light Properties</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Distributed_Rendering.html">Distributed Rendering</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="GLSL_Support.html">GLSL Support</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="OSL_Support.html">OSL Support</a>
+
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Tools.html">Tools</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Irradiance_Map_Viewer.html">Irradiance Map Viewer</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href=".obj_and_.ply_to_.vrmesh_Converter_.html">.obj and .ply to .vrmesh Converter*</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href=".vrimg_to_.exr_Converter.html">.vrimg to .exr Converter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Image_to_Tiled_Multiresolution_OpenEXR_Converter.html">Image to Tiled Multiresolution OpenEXR Converter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="V-Ray_Scene_Exporter.html">V-Ray Scene Exporter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Lens_Analysis_Utility.html">Lens Analysis Utility</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Filter_Generator.html">Filter Generator</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Tutorials.html">Tutorials</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Irradiance_Map_Modes__Rendering_a_Static_Scene_from_Multiple_Views.html">Irradiance Map Modes: Rendering a Static Scene from Multiple Views</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_a_Walk-Through_Animation.html">Rendering a Walk-Through Animation</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Photon_Mapping.html">Photon Mapping</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Displacement_Mapping.html">Displacement Mapping</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_an_Interior_Scene.html">Rendering an Interior Scene</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Progressive_Path_Tracing_with_V-Ray.html">Progressive Path Tracing with V-Ray</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_Surface_Interfaces.html">Rendering Surface Interfaces</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_an_Animation_with_Moving_Objects.html">Rendering an Animation with Moving Objects</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_an_Animation_with_Moving_Objects_II.html">Rendering an Animation with Moving Objects II</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Basic_Texture_Baking_with_V-Ray,_Part_I.html">Basic Texture Baking with V-Ray, Part I</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Universal_V-Ray_Settings.html">Universal V-Ray Settings</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_PTex_Textures_from_Mudbox.html">Rendering PTex Textures from Mudbox</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Theory.html">Theory</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Raytracing_Overview.html">Raytracing Overview</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="GI_Methods.html">GI Methods</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Terminology.html">Terminology</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Frequently_Asked_Questions.html">Frequently Asked Questions</a>
+
+            </li>
+                                    </ul>
+            </nav>
+        </div>
+    </div>
+
+</aside></div>
+
+<div id="ht-wrap-container">
+
+            
+    <div id="ht-sidebar-dragbar">
+    <div class="ht-sidebar-drag-handle">
+        <span class="drag-handle-1"></span>
+        <span class="drag-handle-2"></span>
+        <span class="drag-handle-3"></span>
+    </div>
+</div>
+    <article id="ht-content" class="ht-content">
+        <header class="ht-content-header">
+            <div id="ht-breadcrumb">
+    <ul>
+        <li><a href="V-Ray_2.0_for_3ds_Max.html">V-Ray 2.0 for 3ds Max</a></li>
+                                                                                                             <li><a href="" onclick="$('.shortcut').each(function(){$(this).removeClass('shortcut')}); $(this).parent().addClass('shortcut'); return false;">...</a> </li>
+                                        <li class="shortcut"><a href="Plugins.html">Plugins</a></li>
+                                                                                     <li><a href="Textures.html">Textures</a></li>
+                                                            </ul>
+</div>            <h1 id="src-2557477"> <span>VRayHDRI</span></h1>
+        </header>
+
+        <div id="main-content" class="wiki-content sp-grid-section" data-index-for-search="true">
+
+    <p  >    </p>
+<ul class="toc-indentation "><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-VRayHDRIOverview">VRayHDRI Overview</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-TiledOpenEXRandTIFFFiles">Tiled OpenEXR and TIFF Files</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-TagsandEnvironmentVariablesinBitmapNames">Tags and Environment Variables in Bitmap Names</a>    </p>
+<ul class="toc-indentation "><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-TagsforMulti-Tiles">Tags for Multi-Tiles</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-EnvironmentVariables">Environment Variables</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-User-DefinedProperties">User-Defined Properties</a>    </p>
+</li></ul></li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-Parameters">Parameters</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-Mapping">Mapping</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-GroundProjection">Ground Projection</a>    </p>
+<ul class="toc-indentation "><li class=" ">    <p  ><a   href="#src-2557477_safe-id-VlJheUhEUkktRXhhbXBsZTpHcm91bmRQcm9qZWN0aW9u">Example: Ground Projection</a>    </p>
+</li></ul></li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-Processing">Processing</a>    </p>
+<ul class="toc-indentation "><li class=" ">    <p  ><a   href="#src-2557477_safe-id-VlJheUhEUkktRXhhbXBsZTpUaGVJbnRlcnBvbGF0aW9uUGFyYW1ldGVy">Example: The Interpolation Parameter</a>    </p>
+</li></ul></li><li class=" ">    <p  ><a   href="#src-2557477_safe-id-VlJheUhEUkktQ3JvcC9QbGFjZQ">Crop/Place</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-RGBandAlphaSource">RGB and Alpha Source</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-ColorSpace">Color Space</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-TiledTextureOptions">Tiled Texture Options</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-Time">Time</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-Coordinates">Coordinates</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-BitmaptoVRayHDRIconverter">Bitmap to VRayHDRI converter</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-2557477_VRayHDRI-Notes">Notes</a>    </p>
+</li></ul>    <div class="section section-1" id="src-2557477_VRayHDRI-VRayHDRIOverview">
+        <h1 class="heading "><span>VRayHDRI Overview</span></h1>
+    <p  >    <span style="color: #000000;">
+The VRayHDRI map can be used to load high dynamic range images (HDRI) and map them onto the environment. V-Ray supports most of the standard HDRI-environment mapping methods. Since V-Ray 2.0, this texture can also be used to load other file formats.    </span>
+    </p>
+    </div>
+    <div class="section section-1" id="src-2557477_VRayHDRI-TiledOpenEXRandTIFFFiles">
+        <h1 class="heading "><span>Tiled OpenEXR and TIFF Files</span></h1>
+    <p  >    <span style="color: #000000;">
+This texture can also be used to efficiently     <span style="color: #000000;">
+load t    </span>
+iled OpenEXR and tiled TIFF files (tiled TIFF files usually have a <i class=" "><strong class=" ">.tx</strong></i> or <i class=" "><strong class=" ">.tex</strong></i> extension). Tiled OpenEXR and TIFF files allow only portions of the textures to be loaded at various resolutions. This allows V-Ray to load     <span style="color: #000000;">
+only     </span>
+the parts of the textures that are needed for the rendering.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+You can convert many common image file formats to tiled OpenEXR files using the    </span>
+ <a  class="unresolved" href="#src-2557477">img2tiledexr</a>     <span style="color: #000000;">
+tool. You can also convert all files in a scene using the <a   href="#src-2557477_VRayHDRI-bitmapToHDRI">V-Ray Bitmap to VRayHDRI converter script</a>. Conversion to tiled TIFF can be done using the maketx tool from the    </span>
+ <a  class="external-link" href="https://sites.google.com/site/openimageio/home">OpenImageIO</a>     <span style="color: #000000;">
+library.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Tiled TIFF files have the advantage that they can store 8-bit color components, whereas OpenEXR stores at least 16 bits. This means that tiled 8-bit TIFF textures are smaller on the disk and take up less RAM while rendering.    </span>
+    </p>
+    </div>
+    <div class="section section-1" id="src-2557477_VRayHDRI-TagsandEnvironmentVariablesinBitmapNames">
+        <h1 class="heading "><span>Tags and Environment Variables in Bitmap Names</span></h1>
+    <p  >    <span style="color: #000000;">
+VRayHDRI allows the use of named tags enclosed with the characters <strong class=" ">&lt;</strong> and <strong class=" ">&gt;</strong>, which are replaced at render time with other strings.    </span>
+    </p>
+    <div  class="confbox admonition admonition-warning">
+                            <span class="admonition-icon confluence-information-macro-icon"></span>
+                <div class="admonition-body">
+    <p  >    <span style="color: #000000;">
+Textures that have any of the render-time tags listed below will not be resolved properly by the 3ds Max Asset Tracker (i.e. when creating .zip archives of the scene). However, they will work correctly with the V-Ray automatic transfer of assets for distributed rendering.    </span>
+    </p>
+        </div>
+    </div>
+    <div class="section section-2" id="src-2557477_VRayHDRI-TagsforMulti-Tiles">
+        <h2 class="heading "><span>Tags for Multi-Tiles</span></h2>
+    <p  >    <span style="color: #000000;">
+Some modeling applications allow to specify a different bitmap file for different portions of a model based on the UV coordinates of that model. For example, one file may be used for UVs in the range [0,0] x (1,1), another file may be used for UVs in [1,0] x (2,1) and so on. There are several ways to specify the correct file for each tile, and in each case, a different format for the file name is used in the File node. This is done by using special tags in the file name, which are replaced at render time with a particular string based on the UVs of the current shading point.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+In the following section, we assume that each UV tile has unique integer coordinates (u,v) based on the integer part of the UVs inside it. For example, the UV tile [0,0] x (1,1) has coordinates (0,0), the UV tile [1,0] x (2,1) has coordinates (1,0) and so on.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Upper-case tags usually assume the tile coordinates start from 1, whereas lower-case tags assume the tiles start from 0.    </span>
+    </p>
+    <div class="section section-3" id="src-2557477_safe-id-VlJheUhEUkktTWFyaVRpbGVzYW5kdGhlPFVESU0-VGFn">
+        <h3 class="heading "><span>Mari Tiles and the &lt;UDIM&gt; Tag</span></h3>
+    <p  >    <span style="color: #000000;">
+Mari forms the file name of textures using a four-digit number equal to 1000+(u+1+v*10). So the UV tile [0,0] x (1,1) is assigned the number 1001, UV tile [0,1] x (1,2) is assigned 1011 and so on. To specify a Mari-style tiled texture, use the <strong class=" ">&lt;UDIM&gt;</strong> tag in the file name, which is then replaced with the respective four digits, for example, <strong class=" ">my_texture_&lt;UDIM&gt;.exr</strong> becomes <strong class=" ">my_texture_1001.exr</strong> and so on during rendering.    </span>
+    </p>
+    </div>
+    <div class="section section-3" id="src-2557477_safe-id-VlJheUhEUkktTXVkYm94VGlsZXNhbmR0aGU8VVZUSUxFPlRhZw">
+        <h3 class="heading "><span>Mudbox Tiles and the &lt;UVTILE&gt; Tag</span></h3>
+    <p  >    <span style="color: #000000;">
+Mudbox can form the file name in many ways, but the default format is to use _uU_vV in the file name where U=u+1 and V=v+1 are the tile coordinates plus one. So the UV tile [0,0] x (1,1) is marked with _u1_v1, UV tile [0,1] x (1,2) is marked with _u1_v2 and so on. To specify this format, use the <strong class=" ">&lt;UVTILE&gt;</strong> tag in the file name. If you use lower case letters <strong class=" ">&lt;uvtile&gt;</strong>, then the tile coordinates will start from 0, instead of one, so tile [0,0] x (1,1) will be resolved to _u0_v0 and so on. For example, <strong class=" ">my_texture&lt;UVTILE&gt;.exr</strong> becomes <strong class=" ">my_texture_u1_v1.exr</strong> and so on during rendering.    </span>
+    </p>
+    </div>
+    <div class="section section-3" id="src-2557477_safe-id-VlJheUhEUkktVGhlJFVhbmQkVlRhZ3M">
+        <h3 class="heading "><span>The $U and $V Tags</span></h3>
+    <p  >    <span style="color: #000000;">
+You can also specify the u and v coordinates of the tiles separately by using the <strong class=" ">$U</strong> and <strong class=" ">$V</strong> tags. Each of them is expanded to the respective 1-based coordinate of the tile. For example, if the file name is specified as <strong class=" ">my_texture_$U_$V.exr</strong>, this becomes <strong class=" ">my_texture_1_1.exr</strong> and so on. You can use lower-case tags to make the tile coordinates start from zero, instead of 1, for example <strong class=" ">my_texture_$u_$v.exr</strong> becomes <strong class=" ">my_texture_0_0.exr</strong> and so on.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+You can put a number right after the $ sign to specify how many digits you want in the resulting tile coordinates, for example <strong class=" ">my_texture_$2U_$2V.exr</strong> is expanded to <strong class=" ">my_texture_01_01.exr </strong>and so on.    </span>
+    </p>
+    </div>
+    </div>
+    <div class="section section-2" id="src-2557477_VRayHDRI-EnvironmentVariables">
+        <h2 class="heading "><span>Environment Variables</span></h2>
+    <p  >    <span style="color: #000000;">
+You can include environment variables in the form <strong class=" ">${VAR_NAME}</strong> which are replaced with the value of the respective environment variable during rendering. For example, if the file name is specified as <strong class=" ">${TEX_PATH}\${PROJ_FOLDER}\mytexture.exr</strong>, then V-Ray will look up the environment variables <strong class=" ">TEX_PATH</strong> and <strong class=" ">PROJ_FOLDER</strong> and replace the tags with their values. Suppose that <strong class=" ">TEX_PATH</strong> is set to <strong class=" ">c:\textures</strong> and <strong class=" ">PROJ_FOLDER</strong> is set to <strong class=" ">proj1</strong>, then the final bitmap file name will be expanded as <strong class=" ">c:\textures\proj1\mytexture.exr</strong>    </span>
+    </p>
+    </div>
+    <div class="section section-2" id="src-2557477_VRayHDRI-User-DefinedProperties">
+        <h2 class="heading "><span>User-Defined Properties</span></h2>
+    <p  >    <span style="color: #000000;">
+    <img  class="confluence-embedded-image image-right" src="images/download/attachments/2557477/image2014-1-29_3-42-15.png" alt="images/download/attachments/2557477/image2014-1-29_3-42-15.png"   />
+You can specify node user properties between the <strong class=" ">&lt;</strong> and <strong class=" ">&gt;</strong> brackets. At render time, V-Ray takes the tag name and looks it up in the node's User Defined properties for the shaded object to determine the value of the tag. This allows a single VRayHDRI texture to use different files on different scene nodes. For example, you could specify the file name in VRayHDRI as <strong class=" ">c:\path\to\texture\&lt;objtag&gt;_diffuse.png</strong> and then for the objects that use the material, in their <strong class=" ">Object Properties</strong> dialogue, add a User-Defined property string with values like <strong class=" ">objtag=head</strong> or <strong class=" ">objtag=body</strong>, etc. Then during rendering, V-Ray will attempt to load and use the texture file <strong class=" ">c:\path\to\texture\head_diffuse.png</strong> for the first object and <strong class=" ">c:\path\to\texture\body_diffuse.png</strong> on the second.    </span>
+    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    <p  >    </p>
+    </div>
+    </div>
+    <div class="section section-1" id="src-2557477_VRayHDRI-Parameters">
+        <h1 class="heading "><span>Parameters</span></h1>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">    <img  class="confluence-embedded-image image-right" src="images/download/attachments/2557477/image2014-2-5_15-17-53.png" alt="images/download/attachments/2557477/image2014-2-5_15-17-53.png"   />
+Bitmap</strong> - the file name from which the bitmap is loaded. Currently supported formats are HDR, EXR, PNG, BMP, TGA, SGI, JPG, PIC, TIF, PSD, VRIMG. Image file lists in the form of IFL files are also supported.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Browse</strong> - click this button to browse for an HDR image.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Reload</strong> - forces V-Ray to reload the texture from the hardrive.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Locate</strong> - opens the folder in which the texture file is located in a new windows explorer window.    </span>
+    </p>
+    </div>
+    <div class="section section-1" id="src-2557477_VRayHDRI-Mapping">
+        <h1 class="heading "><span>Mapping </span></h1>
+    <p  >    <span style="color: #000000;">
+These parameters determine how the VRayHDRI texture is mapped.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Mapping type</strong> - the following mapping types are supported:    </span>
+    </p>
+<ul class=" "><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Angular </strong>- environment mapping in angular mode;    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Cubic </strong>- environment mapping in cubic mode;    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Spherical </strong>- environment mapping in spherical mode;    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Mirrored ball </strong>- environment mapping in mirror ball mode;    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">3ds Max standard </strong>- the mapping type is determined by the Coordinates section.    </span>
+    </p>
+</li></ul>    <p  >    <span style="color: #000000;">
+<strong class=" ">Horiz. rotation</strong> - allows rotation of the environment map left and right. Ignored when the Mapping type is 3ds Max standard.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Flip horizontally</strong> - flips the environment horizontally. Ignored when the Mapping type is 3ds Max standard.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Vert. rotation </strong>- allows rotation of the environment map up and down. Ignored when the Mapping type is 3ds Max standard.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Flip vertically</strong> -    </span>
+ flips    <span style="color: #000000;">
+ the environment vertically. Ignored when the Mapping type is 3ds Max standard.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    </div>
+    <div class="section section-1" id="src-2557477_VRayHDRI-GroundProjection">
+        <h1 class="heading "><span>Ground Projection</span></h1>
+    <p  >    <span style="color: #000000;">
+These controls     </span>
+    <span style="color: #000000;">
+allow you to &quot;flatten&quot; the bottom part of an environment map onto a virtual plane. This is useful for rendering CG objects when you only have an environment map.    </span>
+    </p>
+    <div  class="confbox admonition admonition-warning">
+                            <span class="admonition-icon confluence-information-macro-icon"></span>
+                <div class="admonition-body">
+    <p  >    <span style="color: #000000;">
+The    </span>
+    <span style="color: #000000;">
+ ground projection only works for environment maps; it doesn't work if the texture is assigned to a dome light.    </span>
+    </p>
+        </div>
+    </div>
+    <p  ><strong class=" ">On</strong>    <span style="color: #000000;">
+ - enable or disable the ground projection.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Position</strong> - the X, Y and Z coordinates of a point in 3D space where the center of the environment map is projected.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Radius</strong> - a projection radius. Can be used to control the &quot;scale&quot; of the projection.    </span>
+    </p>
+    <div  class="confbox admonition admonition-info">
+                            <span class="admonition-icon confluence-information-macro-icon"></span>
+                <div class="admonition-body">
+    <h4 id="src-2557477_safe-id-VlJheUhEUkktRXhhbXBsZTpHcm91bmRQcm9qZWN0aW9u" class="heading "><span>Example: Ground Projection</span></h4>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/2557477/image2014-2-5_15-39-22.png" alt="images/download/attachments/2557477/image2014-2-5_15-39-22.png" width="400"  />
+        </p>
+    <p  ><strong class=" ">Ground projection</strong> is disabled; though it almost looks like the teapot is sitting on the planks, the perspective doesn't match.    </p>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/2557477/image2014-2-5_15-41-14.png" alt="images/download/attachments/2557477/image2014-2-5_15-41-14.png" width="400"  />
+        </p>
+    <p  ><strong class=" ">Ground projection</strong> is enabled; the illusion that the teapot is sitting on the planks is more convincing as the perspective matches.    </p>
+    <p  >    <span style="color: #333399;">
+<br/>    </span>
+    </p>
+        </div>
+    </div>
+    </div>
+    <div class="section section-1" id="src-2557477_VRayHDRI-Processing">
+        <h1 class="heading "><span>Processing</span></h1>
+    <p  ><strong class=" ">    <span style="color: #000000;">
+Overall multiplier    </span>
+</strong>    <span style="color: #000000;">
+ - a control for the overall brightness of the image. This multiplier affects both rendering and the material editor.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Render multiplier</strong> - controls the brightness of the HDRI image only when rendering; it has no effect on the display of the image in the material editor.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Interpolation</strong> - determines how the image is interpolated from the pixel values. See the Examples for a demonstration of this effect. Possible values are:    </span>
+    </p>
+<ul class=" "><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Bilinear </strong>- the image values are interpolated from four pixels in the bitmap. This is the fastest interpolation method, but the result is not continuous (non-smooth) and may produce artifacts when the map is used for displacement or bump mapping.    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Bicubic </strong>- the image values are interpolated from sixteen pixels in the bitmap. This is the slowest method, but the results are smooth without too much blur.    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Biquadratic </strong>- the image values are interpolated from nine pixels in the bitmap. This method is faster than the Bicubic interpolation, but may smooth the image too much.    </span>
+    <span style="color: #000000;">
+    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Default </strong>- the interpolation type is chosen automatically depending on the bitmap format to match the behavior of the standard 3ds Max Bitmap texture. For HDR and EXR images, the interpolation is Bilinear, and for all other formats - Bicubic.    </span>
+    </p>
+</li></ul>    <div  class="confbox admonition admonition-info">
+                            <span class="admonition-icon confluence-information-macro-icon"></span>
+                <div class="admonition-body">
+    <h4 id="src-2557477_safe-id-VlJheUhEUkktRXhhbXBsZTpUaGVJbnRlcnBvbGF0aW9uUGFyYW1ldGVy" class="heading "><span>Example: The Interpolation Parameter</span></h4>
+    <p  >    <span style="color: #333399;">
+    <span style="color: #333399;">
+This example shows the effect of the different interpolation methods. The images below show a teapot displaced with this texture:    </span>
+    </span>
+    </p>
+    <p  >    <span style="color: #333399;">
+    <img  class="confluence-embedded-image" src="images/download/attachments/2557477/dots1.png" alt="images/download/attachments/2557477/dots1.png"   />
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #333399;">
+Displacement texture    </span>
+    </p>
+    <p  >    <span style="color: #333399;">
+    <img  class="confluence-embedded-image" src="images/download/attachments/2557477/dots1_large.png" alt="images/download/attachments/2557477/dots1_large.png"   />
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #333399;">
+Zoomed displacement texture with pixel boundaries shown    </span>
+    </p>
+    <p  >    <span style="color: #333399;">
+Notice how the different interpolation methods produce slightly different results with different smoothness.    </span>
+    </p>
+    <p  >    <span style="color: #333399;">
+    <img  class="confluence-embedded-image confluence-thumbnail" src="images/download/thumbnails/2557477/hdri_interp_bilinear.png" alt="images/download/thumbnails/2557477/hdri_interp_bilinear.png" width="300"  />
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #333399;">
+Interpolation is Bilinear    </span>
+    </p>
+    <p  >    <span style="color: #333399;">
+    <img  class="confluence-embedded-image confluence-thumbnail" src="images/download/thumbnails/2557477/hdri_interp_bicubic.png" alt="images/download/thumbnails/2557477/hdri_interp_bicubic.png" width="300"  />
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #333399;">
+Interpolation is Bicubic    </span>
+    </p>
+    <p  >    <span style="color: #333399;">
+    <img  class="confluence-embedded-image confluence-thumbnail" src="images/download/thumbnails/2557477/hdri_interp_biquadratic.png" alt="images/download/thumbnails/2557477/hdri_interp_biquadratic.png" width="300"  />
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #333399;">
+Interpolation is Biquadratic    </span>
+    </p>
+        </div>
+    </div>
+    </div>
+    <div class="section section-1" id="src-2557477_safe-id-VlJheUhEUkktQ3JvcC9QbGFjZQ">
+        <h1 class="heading "><span>Crop/Place </span></h1>
+    <p  >    <span style="color: #000000;">
+The controls in this group let you crop the texture or reduce its size for custom placement. Cropping a texture means reducing it to a smaller rectangular area than it originally had. Cropping doesn't change the scale of the texture.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Placing a texture lets you scale the map and place it anywhere within its tile. Placing can change the texture's scale, but shows the entire texture. The four values that specify the placement and size of the cropping or placement region are all animatable. Cropping and placement settings affect the texture only as it's used for this map and any instances of the map. They have no effect on the texture file itself.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">On</strong> - Turn on to use the cropping or placement settings.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Crop</strong> - enables cropping.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Place</strong> - enables placing.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">U/V</strong> - Adjusts the texture location - specifies the location of the top left corner of the image.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Width/Height</strong> - Adjusts the width and height of the texture or crop area.    </span>
+    </p>
+    </div>
+    <div class="section section-1" id="src-2557477_VRayHDRI-RGBandAlphaSource">
+        <h1 class="heading "><span>RGB and Alpha Source</span></h1>
+    <p  >    <span style="color: #000000;">
+These controls allow the user to specify how the color and alpha of the resulting texture are derived.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">RGB output</strong> - specifies the source for the color of the texture:    </span>
+    </p>
+<ul class=" "><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">RGB color</strong> - the normal texture color;    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Alpha as gray</strong> - the color of the texture is the alpha channel converted to a grayscale color;    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Intensity as gray</strong> - the texture converted to grayscale colors based on the intensity of the colors (red+green+blue)/3    </span>
+    </p>
+</li></ul>    <p  >    <span style="color: #000000;">
+<strong class=" ">Alpha source</strong> - determines how the texture alpha is computed:    </span>
+    </p>
+<ul class=" "><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Image alpha</strong> - from the alpha channel of the bitmap image, if present (and 1.0 if the image has no alpha channel);    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Intensity</strong> - the alpha is taken from the intensity of the bitmap image colors (red+green+blue)/3;    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">None (opaque)</strong> - the alpha channel of the bitmap image is ignored and the VRayHDRI texture always returns 1.0 for alpha.    </span>
+    </p>
+</li></ul>    <p  >    <span style="color: #000000;">
+<strong class=" ">Mono output</strong> - determines the value of the texture when used as a floating-point texture (f.e. for glossiness values in mateirals, amount values, opacity values etc):    </span>
+    </p>
+<ul class=" "><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">RGB intensity</strong> - the mono output is taken from the bitmap color intensity (red+green+blue)/3;    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Alpha</strong> - the mono output is taken from the bitmap alpha.    </span>
+    </p>
+</li></ul>    </div>
+    <div class="section section-1" id="src-2557477_VRayHDRI-ColorSpace">
+        <h1 class="heading "><span>Color Space </span></h1>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Type</strong>    </span>
+    <span style="color: #000000;">
+ - this parameter allows the user to manually specifiy the color space of the .hdr image so that the inverse curve can be applied to make the image in a linear color space    </span>
+    </p>
+<ul class=" "><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">None </strong>- no correction is applied    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Inverse gamma</strong> - when this mode is selected the color space is controlled through the Inverse Gamma parameter    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">sRGB </strong>- the .hdr image is in sRGB color space    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">From 3ds Max</strong> - the gamma is controlled from 3ds Max (customize -&gt; preferences -&gt; Gamma and LUT -&gt; Input Gamma)    </span>
+    </p>
+</li></ul>    <p  >    <span style="color: #000000;">
+<strong class=" ">Inverse gamma</strong> - a gamma-correction value for the image. For example, if the bitmap was saved to     </span>
+    <span style="color: #000000;">
+disk with a 2.2 gamma correction, you need to enter 0.4545 to remove that correction for the rendering.    </span>
+    </p>
+    </div>
+    <div class="section section-1" id="src-2557477_VRayHDRI-TiledTextureOptions">
+        <h1 class="heading "><span>Tiled Texture Options</span></h1>
+    <p  >    <span style="color: #000000;">
+    <img  class="confluence-embedded-image image-right" src="images/download/attachments/2557477/image2014-2-5_15-19-15.png" alt="images/download/attachments/2557477/image2014-2-5_15-19-15.png"   />
+These options are shared between all instances of the VRayHDRI texture; changing them in one texture affects all other textures.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Tiled texture cache size</strong> - the size of the cache for tiled OpenEXR files, in megabytes. When the texture cache is full, part of the tiles will be flushed to make space for loading new tiles as needed.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Clear cache on render end</strong> - if enabled, the texture cache is flushed at the end of each frame. This may save some RAM, but will cause the texture tiles to be reloaded on each frame.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    </div>
+    <div class="section section-1" id="src-2557477_VRayHDRI-Time">
+        <h1 class="heading "><span>Time </span></h1>
+    <p  >    <span style="color: #000000;">
+    <img  class="confluence-embedded-image image-right" src="images/download/attachments/2557477/image2014-2-5_15-19-40.png" alt="images/download/attachments/2557477/image2014-2-5_15-19-40.png"   />
+The options in this rollout allow the user to control the playback options when a sequence of textures is loaded.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Start frame</strong> - this parameter allows the user to offset the beginning of the animation by a given number of frames.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">Playback Rate</strong> - this is a multiplier for the speed of the animation.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<strong class=" ">End conditions</strong> -     </span>
+    <span style="color: #000000;">
+this parameter specifies the playback mode of the animation - i.e. what will happen when the final frame of the sequence is reached.    </span>
+    </p>
+<ul class=" "><li class=" ">    <p  ><strong class=" ">Lo</strong><strong class=" ">op</strong>    <span style="color: #000000;">
+<strong class=" "> </strong>- the animation is looped by skipping to the first frame once it has finished    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Ping pong</strong> - the animation is looped by playing it backwards once the last frame has been reached and then playing it forward again when the first frame is reached    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+<strong class=" ">Hold</strong><strong class=" "> </strong>- the animation is played just once    </span>
+    </p>
+</li></ul>    </div>
+    <div class="section section-1" id="src-2557477_VRayHDRI-Coordinates">
+        <h1 class="heading "><span>Coordinates</span></h1>
+    <p  >    <span style="color: #000000;">
+    <img  class="confluence-embedded-image image-right" src="images/download/attachments/2557477/image2014-2-5_15-20-6.png" alt="images/download/attachments/2557477/image2014-2-5_15-20-6.png"   />
+These parameters are used when the Mapping type is set to 3ds Max standard. They are the regular 3ds Max mapping parameters as found in the standard 3ds Max Bitmap texture.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+<span id="src-2557477_VRayHDRI-bitmapToHDRI"></span>    </div>
+    <div class="section section-1" id="src-2557477_VRayHDRI-BitmaptoVRayHDRIconverter">
+        <h1 class="heading "><span>Bitmap to VRayHDRI converter</span></h1>
+    <p  >    <span style="color: #000000;">
+    <img  class="confluence-embedded-image image-right" src="images/download/attachments/2557477/image2014-5-3_15-49-39.png" alt="images/download/attachments/2557477/image2014-5-3_15-49-39.png"   />
+V-Ray includes a MaxScript tool for converting standard 3ds Max Bitmap textures to VRayHDRI textures, with the option to automatically convert the texture files to tiled OpenEXR files. The tool can be invoked by right-clicking in any viewport and selecting &quot;V-Ray    </span>
+     <span style="color: #000000;">
+Bitmap    </span>
+    <span style="color: #000000;">
+ to VRayHDRI converter&quot; (if the menu item is missing, execute the <strong class=" ">registerVRayMenus()</strong> MaxScript command in the MaxScript listener).    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+Once you select the converter from the menu, the converter dialogue appears:    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image" src="images/download/attachments/2557477/image2014-5-3_15-44-37.png" alt="images/download/attachments/2557477/image2014-5-3_15-44-37.png"   />
+        </p>
+    <p  >    <span style="color: #000000;">
+If you turn on the <strong class=" ">Convert bitmaps to tiled EXR files</strong> option, the converter script will automatically invoke the <strong class=" ">img2tiledexr</strong> tool to convert non-exr textures to tiled OpenEXR ones. If the option is disabled, the original bitmap file names will be used.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+    <div  class="confbox admonition admonition-warning">
+                            <span class="admonition-icon confluence-information-macro-icon"></span>
+                <div class="admonition-body">
+    <p  >    <span style="color: #000000;">
+It is generally a good practice to save the scene before running the converter and to verify that everything is converted correctly afterwards.    </span>
+    </p>
+        </div>
+    </div>
+    </div>
+    <div class="section section-1" id="src-2557477_VRayHDRI-Notes">
+        <h1 class="heading "><span>Notes</span></h1>
+<ul class=" "><li class=" ">    <p  >    <span style="color: #000000;">
+Since    </span>
+    <span style="color: #000000;">
+ V-Ray 2.0, VRayHDRI will load the texture the first time it is needed during the actual rendering, rather than at the start of a frame. Textures that are not needed (for example, because their materials are not needed for the particular camera angle) will not be loaded at all.    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+When using tiled OpenEXR or TIFF textures, it is recommended to turn on the Filter maps for GI optio    </span>
+n in the <a  class="unresolved" href="#src-2557477">Global Switches</a> section;     <span style="color: #000000;">
+otherwise    </span>
+     <span style="color: #000000;">
+V-Ray will be forced to almost always load the most detailed version of the texture.    </span>
+    </p>
+</li></ul>    <p  >    </p>
+    <p  >    </p>
+    </div>
+        </div>
+
+    </article>
+
+
+            <nav id="ht-post-nav">
+                <a href="VRayMap.html" class="ht-post-nav-prev">
+            <svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                 xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+                <g id="ht-icon-prev" sketch:type="MSArtboardGroup">
+                    <path fill="#000000" d="M16,8 L16,6 L6,6 L6,16 L8,16 L8,8 L16,8 Z" id="Rectangle-2"
+                          sketch:type="MSShapeGroup"
+                          transform="translate(11.000000, 11.000000) rotate(-45.000000) translate(-11.000000, -11.000000) "></path>
+                </g>
+            </svg>
+            <span>VRayMap</span>
+        </a>
+                <a href="VRayEdgesTex.html" class="ht-post-nav-next">
+            <svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                 xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+                <g id="ht-icon-next" sketch:type="MSArtboardGroup">
+                    <path fill="#000000" d="M16,8 L16,6 L6,6 L6,16 L8,16 L8,8 L16,8 Z" id="Rectangle-2"
+                          sketch:type="MSShapeGroup"
+                          transform="translate(11.000000, 11.000000) rotate(-225.000000) translate(-11.000000, -11.000000) "></path>
+                </g>
+            </svg>
+            <span>VRayEdgesTex</span>
+        </a>
+    </nav>    
+            
+            <article id="html-search-results" class="ht-content" style="display: none;">
+            <header class="ht-content-header">
+                <div id="ht-spacetitle">
+                    <ul>
+                        <li><a href="V-Ray_2.0_for_3ds_Max.html">V-Ray 2.0 for 3ds Max</a></li>
+                    </ul>
+                </div>
+                <h1>Search results</h1>
+            </header>
+            <div id="search-results"></div>
+        </article>
+    
+    <footer id="ht-footer">
+    <a href="#" id="ht-jump-top" class="sp-aui-icon-small sp-aui-iconfont-arrows-up"></a>
+</footer></div>
+
+<div>
+    <div id="ht-mq-detect"></div>
+</div>
+
+    <script src="js/lunr.js"></script>
+    <script src="js/lunr-extras.js"></script>
+    <script src="assets/js/scroll-search.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,2447 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Render Elements - V-Ray 2.0 for 3ds Max</title>
+
+    <meta name="description" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=2.0, user-scalable=yes">
+
+<script type="text/javascript" src="assets/js/jquery.min.js"></script>
+<script type="text/javascript" src="assets/js/jquery.scrollTo.min.js"></script>
+
+
+<script type="text/javascript" src="assets/js/scroll-tree.js"></script>
+
+<script type="text/javascript" src="assets/js/theme.main.js"></script>
+
+
+<link rel="stylesheet" href="assets/css/content-style.css">
+    <link rel="stylesheet" href="assets/css/search.css">
+
+<link rel="stylesheet" href="assets/css/theme.main.css">
+<link rel="stylesheet" href="assets/css/theme.colors.css">
+
+            <!-- ES5 support for older browsers, needed by lunr -->
+        <script src="js/augment.js"></script>
+        <script id="worker" type="javascript/worker">
+
+        startIndex = function() {
+            idx = lunr.Index.load(lunrIndex);
+            idx.pipeline.remove(lunr.stopWordFilter);
+            postMessage({type: "setup-complete"});
+        }
+
+        onmessage = function (event) {
+            var message = event.data;
+
+            if ((message.type === 'setup') && message.baseUrl) {
+                var url = message.baseUrl;
+                importScripts(url + 'js/lunr.js');
+                importScripts(url + 'js/lunr-extras.js');
+                importScripts(url + 'js/lunr-index.js');
+                importScripts(url + 'js/lunr-data.js');
+                startIndex();
+            }
+
+            if (idx && (message.type === 'search-request') && message.query) {
+                var searchWord = message.query;
+                var results = idx.search(searchWord).map(function (result) {
+                    return lunrData.filter(function (d) {
+                        return d.id === parseInt(result.ref, 10)
+                    })[0]
+                });
+                postMessage({type: 'search-results', results: results, query: searchWord, queryId: message.queryId});
+            }
+        }
+
+    </script>
+    </head>
+
+<body pageid="917507">
+
+<div id="ht-loader">
+    <noscript>
+        <p style="width: 100%; text-align:center; position: absolute; margin-top: 200px;">This content cannot be displayed without JavaScript.<br>Please enable JavaScript and reload the page.</p>
+    </noscript>
+</div>
+
+<div>
+   	<header id="ht-headerbar">
+    <div class="ht-headerbar-left">
+        <a href="" id="ht-menu-toggle" class="sp-aui-icon-small sp-aui-iconfont-appswitcher"></a>
+    </div>
+    <div class="ht-headerbar-right">
+            <div class="sp-aui-icon-small ht-search-index-loader ht-header-icon"></div>
+
+        <div id="ht-search">
+            <div class="ht-search-input" style="display: none;">
+              	<a href="#" class="sp-aui-icon-small sp-aui-iconfont-remove ht-search-clear"></a>
+
+                <form action="#" method="GET" id="search">
+                    <input class="search-input" type="text" placeholder="Search" tabindex="-1" autocomplete="off" name="q" value="">
+                    <input type="hidden" name="max" value="15" />
+                    <input type="submit" style="display:none" tabindex="-4"/>
+                </form>
+
+                <a href="#" id="ht-search-button" class="ht-header-icon ht-header-icon-svg">
+                                        <svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g>
+                            <path d="M29.572,28.802 L28.801,29.571 C28.515,29.857 28.187,30 27.816,30 C27.445,30 27.116,29.857 26.831,29.571 L21.392,24.134 C20.193,24.762 18.908,25.076 17.538,25.076 C15.396,25.076 13.605,24.348 12.163,22.892 C10.721,21.436 10,19.651 10,17.538 C10,15.397 10.721,13.605 12.163,12.163 C13.605,10.721 15.396,10 17.538,10 C19.651,10 21.434,10.721 22.89,12.163 C24.347,13.605 25.075,15.397 25.075,17.538 C25.075,18.937 24.761,20.222 24.132,21.393 L29.572,26.832 C29.857,27.118 30,27.446 30,27.817 C30,28.188 29.857,28.517 29.572,28.802 L29.572,28.802 Z M13.662,21.414 C14.732,22.485 16.024,23.02 17.538,23.02 C19.051,23.02 20.343,22.485 21.413,21.414 C22.484,20.344 23.019,19.052 23.019,17.538 C23.019,16.025 22.484,14.733 21.413,13.662 C20.343,12.592 19.051,12.056 17.538,12.056 C16.024,12.056 14.732,12.592 13.662,13.662 C12.591,14.733 12.056,16.025 12.056,17.538 C12.056,19.052 12.591,20.344 13.662,21.414 L13.662,21.414 Z"></path>
+                        </g>
+                    </svg>
+              	</a>
+
+                <div class="ht-search-dropdown ht-dropdown">
+                    <ul></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    </header>   	<aside id="ht-sidebar">
+    <div class="ht-sidebar-content">
+        <div class="ht-sidebar-content-scroll-container">
+            <header class="ht-sidebar-header">
+                <h1 class="ht-logo">
+                    <span class="ht-logo-label">VRAY</span>
+                    <img class="space-logo" src="spacelogo.png" />
+                </h1>
+                <a href="V-Ray_2.0_for_3ds_Max.html" class="ht-space-link">
+                    <h2>V-Ray 2.0 for 3ds Max</h2>
+                </a>
+            </header>
+
+            <nav class="ht-pages-nav">
+                <ul class="ht-pages-nav-top">
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Getting_Started.html">Getting Started</a>
+
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Licensing.html">Licensing</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="EULA.html">EULA</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="License_Server_Agreement.html">License Server Agreement</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Credits.html">Credits</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Migrating_from_V-Ray_1.5_to_V-Ray_2.0.html">Migrating from V-Ray 1.5 to V-Ray 2.0</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Features.html">Features</a>
+
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Installation.html">Installation</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Installation_Troubleshooting.html">Installation Troubleshooting</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Silent_Install_and_Uninstall.html">Silent Install and Uninstall</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Uninstall_V-Ray.html">Uninstall V-Ray</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="V-Ray_Configuration.html">V-Ray Configuration</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Licensing_System.html">Licensing System</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Troubleshooting.html">Troubleshooting</a>
+
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="V-Ray_and_3ds_Max.html">V-Ray and 3ds Max</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="MaxScript.html">MaxScript</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Texture_Baking.html">Texture Baking</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Unsupported_3ds_Max_Features.html">Unsupported 3ds Max Features</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link current" href="Render_Elements.html">Render Elements</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="G-Buffer_Support.html">G-Buffer Support</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Hair_&amp;_Fur.html">Hair &amp; Fur</a>
+
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="V-Ray_RT.html">V-Ray RT</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="V-Ray_RT_FAQ.html">V-Ray RT FAQ</a>
+
+            </li>
+                            </ul>
+            </li>
+                            </ul>
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Plugins.html">Plugins</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Rendering.html">Rendering</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href=" V-Ray_Frame_Buffer.html">&nbsp;V-Ray Frame Buffer</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Global_Switches.html">Global Switches</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Image_Sampler_(Antialiasing).html">Image Sampler (Antialiasing)</a>
+
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Indirect_Illumination_(GI).html">Indirect Illumination (GI)</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Brute_Force_GI.html">Brute Force GI</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Irradiance_Map.html">Irradiance Map</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Global_Photon_Map.html">Global Photon Map</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Light_Cache.html">Light Cache</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Caustics.html">Caustics</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Environment.html">Environment</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="DMC_Sampler.html">DMC Sampler</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Color_Mapping.html">Color Mapping</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Camera.html">Camera</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Default_Displacement.html">Default Displacement</a>
+
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="System.html">System</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Presets.html">Presets</a>
+
+            </li>
+                            </ul>
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Materials.html">Materials</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayMtl.html">VRayMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRay2SidedMtl.html">VRay2SidedMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayOverrideMtl.html">VRayOverrideMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayLightMtl.html">VRayLightMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayMtlWrapper.html">VRayMtlWrapper</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayFastSSS.html">VRayFastSSS</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayFastSSS2.html">VRayFastSSS2</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayBlendMtl.html">VRayBlendMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySimbiontMtl.html">VRaySimbiontMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayCarPaintMtl.html">VRayCarPaintMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayFlakesMtl.html">VRayFlakesMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayOSLMtl.html">VRayOSLMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayHairMtl.html">VRayHairMtl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayGLSLMtl.html">VRayGLSLMtl</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Textures.html">Textures</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySun_and_VRaySky.html">VRaySun and VRaySky</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayDirt.html">VRayDirt</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayColor.html">VRayColor</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayMap.html">VRayMap</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayHDRI.html">VRayHDRI</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayEdgesTex.html">VRayEdgesTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayBmpFilter.html">VRayBmpFilter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayCompTex.html">VRayCompTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayDistanceTex.html">VRayDistanceTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayGLSLTex.html">VRayGLSLTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayOSLTex.html">VRayOSLTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayMultiSubTex.html">VRayMultiSubTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayPtex.html">VRayPtex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayHairInfoTex.html">VRayHairInfoTex</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayColor2Bump.html">VRayColor2Bump</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySky.html">VRaySky</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySoftBox.html">VRaySoftBox</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Lighting.html">Lighting</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayLight.html">VRayLight</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySun.html">VRaySun</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayIES_light.html">VRayIES light</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayAmbientLight.html">VRayAmbientLight</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Geometry.html">Geometry</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayFur.html">VRayFur</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayProxy.html">VRayProxy</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayPlane.html">VRayPlane</a>
+
+            </li>
+                            </ul>
+            </li>
+                                        <li class="collapsed">
+        <a class="ht-nav-page-link" href="Miscellaneous_Plugins.html">Miscellaneous Plugins</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayShadow.html">VRayShadow</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayShadowMap.html">VRayShadowMap</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayDisplacementMod.html">VRayDisplacementMod</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayToon.html">VRayToon</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayEnvironmentFog.html">VRayEnvironmentFog</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayPhysicalCamera.html">VRayPhysicalCamera</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRaySphereFade.html">VRaySphereFade</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayStereoscopic.html">VRayStereoscopic</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayStereoRig.html">VRayStereoRig</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayLensEffects.html">VRayLensEffects</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayLightMeter.html">VRayLightMeter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayExposureControl.html">VRayExposureControl</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayBPTracer.html">VRayBPTracer</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayOrnatrixMod.html">VRayOrnatrixMod</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="VRayHairFarmMod.html">VRayHairFarmMod</a>
+
+            </li>
+                            </ul>
+            </li>
+                            </ul>
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Object_and_Light_Properties.html">Object and Light Properties</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Distributed_Rendering.html">Distributed Rendering</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="GLSL_Support.html">GLSL Support</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="OSL_Support.html">OSL Support</a>
+
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Tools.html">Tools</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Irradiance_Map_Viewer.html">Irradiance Map Viewer</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href=".obj_and_.ply_to_.vrmesh_Converter_.html">.obj and .ply to .vrmesh Converter*</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href=".vrimg_to_.exr_Converter.html">.vrimg to .exr Converter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Image_to_Tiled_Multiresolution_OpenEXR_Converter.html">Image to Tiled Multiresolution OpenEXR Converter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="V-Ray_Scene_Exporter.html">V-Ray Scene Exporter</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Lens_Analysis_Utility.html">Lens Analysis Utility</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Filter_Generator.html">Filter Generator</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Tutorials.html">Tutorials</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Irradiance_Map_Modes__Rendering_a_Static_Scene_from_Multiple_Views.html">Irradiance Map Modes: Rendering a Static Scene from Multiple Views</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_a_Walk-Through_Animation.html">Rendering a Walk-Through Animation</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Photon_Mapping.html">Photon Mapping</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Displacement_Mapping.html">Displacement Mapping</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_an_Interior_Scene.html">Rendering an Interior Scene</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Progressive_Path_Tracing_with_V-Ray.html">Progressive Path Tracing with V-Ray</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_Surface_Interfaces.html">Rendering Surface Interfaces</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_an_Animation_with_Moving_Objects.html">Rendering an Animation with Moving Objects</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_an_Animation_with_Moving_Objects_II.html">Rendering an Animation with Moving Objects II</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Basic_Texture_Baking_with_V-Ray,_Part_I.html">Basic Texture Baking with V-Ray, Part I</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Universal_V-Ray_Settings.html">Universal V-Ray Settings</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Rendering_PTex_Textures_from_Mudbox.html">Rendering PTex Textures from Mudbox</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="collapsed">
+        <a class="ht-nav-page-link" href="Theory.html">Theory</a>
+
+                    <span class="sp-toggle sp-aui-icon-small ht-pages-nav-toggle">
+                <svg id="icon-minus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+                <svg id="icon-plus" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#CCCCCC">
+                        <rect x="11" y="7" width="2" height="10"></rect>
+                        <rect x="7" y="11" width="10" height="2"></rect>
+                    </g>
+                </svg>
+            </span>
+
+            <ul class="nav ht-pages-nav-sub">
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="Raytracing_Overview.html">Raytracing Overview</a>
+
+            </li>
+                                        <li class="leaf">
+        <a class="ht-nav-page-link" href="GI_Methods.html">GI Methods</a>
+
+            </li>
+                            </ul>
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Terminology.html">Terminology</a>
+
+            </li>
+                                                <li class="leaf">
+        <a class="ht-nav-page-link" href="Frequently_Asked_Questions.html">Frequently Asked Questions</a>
+
+            </li>
+                                    </ul>
+            </nav>
+        </div>
+    </div>
+
+</aside></div>
+
+<div id="ht-wrap-container">
+
+            
+    <div id="ht-sidebar-dragbar">
+    <div class="ht-sidebar-drag-handle">
+        <span class="drag-handle-1"></span>
+        <span class="drag-handle-2"></span>
+        <span class="drag-handle-3"></span>
+    </div>
+</div>
+    <article id="ht-content" class="ht-content">
+        <header class="ht-content-header">
+            <div id="ht-breadcrumb">
+    <ul>
+        <li><a href="V-Ray_2.0_for_3ds_Max.html">V-Ray 2.0 for 3ds Max</a></li>
+                                                                                     <li><a href="V-Ray_and_3ds_Max.html">V-Ray and 3ds Max</a></li>
+                                                            </ul>
+</div>            <h1 id="src-1409055"> <span>Render Elements</span></h1>
+        </header>
+
+        <div id="main-content" class="wiki-content sp-grid-section" data-index-for-search="true">
+
+    <p  >    </p>
+<ul class="toc-indentation "><li class=" ">    <p  ><a   href="#src-1409055_RenderElements-generalRenderElementsOverview">Render Elements Overview</a>    </p>
+</li><li class=" ">    <p  ><a   href="#src-1409055_RenderElements-listListofSupportedRenderElements">List of Supported Render Elements</a>    </p>
+<ul class="toc-indentation "><li class=" ">    <p  ><a   href="#src-1409055_safe-id-UmVuZGVyRWxlbWVudHMtRXhhbXBsZTpSZW5kZXJFbGVtZW50c2FuZENvbWJpbmF0aW9ucw">Example: Render Elements and Combinations</a>    </p>
+</li></ul></li><li class=" ">    <p  ><a   href="#src-1409055_RenderElements-notesNotes">Notes</a>    </p>
+</li></ul>    <div class="section section-1" id="src-1409055_RenderElements-generalRenderElementsOverview">
+        <h1 class="heading "><span>Render Elements Overview</span></h1>
+    <p  >    <span style="color: #000000;">
+V-Ray supports the 3ds Max Render elements interface since version 1.48. Note however, that V-Ray provides its own render elements and does not support the standard ones implemented in 3ds Max. Standard 3ds Max render elements will not work with V-Ray and vice-versa.    </span>
+    </p>
+    </div>
+    <div class="section section-1" id="src-1409055_RenderElements-listListofSupportedRenderElements">
+        <h1 class="heading "><span>List of Supported Render Elements</span></h1>
+    <p  >    <span style="color: #000000;">
+The following render elements are supported by V-Ray. All render elements support native V-Ray materials. Some render elements also support standard 3ds Max materials. This is noted in the table below.    </span>
+    </p>
+    <div  class="tablewrap">
+        <table class="confluenceTable">
+        <thead class=" "></thead><tfoot class=" "></tfoot><tbody class=" ">    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <h6 id="src-1409055_RenderElements-RenderElementName" class="heading "><span>Render Element Name</span></h6>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <h6 id="src-1409055_RenderElements-VRayMtlSupport" class="heading "><span>VRayMtl Support</span></h6>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <h6 id="src-1409055_RenderElements-StdMaterialAupport" class="heading "><span>Std Material Aupport</span></h6>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <h6 id="src-1409055_RenderElements-FilteringControl" class="heading "><span>Filtering Control</span></h6>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <h6 id="src-1409055_RenderElements-TransparencySupport" class="heading "><span>Transparency Support</span></h6>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <h6 id="src-1409055_RenderElements-Description" class="heading "><span>Description</span></h6>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">MultiMatte</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+Create selection masks based on object G-buffer ID or material ID.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayAlpha</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+Alpha transparency.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayAtmosphere</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+<i class=" ">no</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The atmospheric effects.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayBackground</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The image background.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayBumpNormals</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The normals generated by bump maps.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayCaustics</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">no</i>*    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The caustics on the material. Only present when the    </span>
+     <span style="color: #003366;">
+<a   href="Caustics.html">Caustics</a>    </span>
+     <span style="color: #000000;">
+option of V-Ray is enabled. This channel does not include GI caustics.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayDiffuseFilter</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The pure diffuse surface color. Note that this is different from the standard 3ds Max Diffuse render element, which contains the diffuse surface lighting.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayDRBucket</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+Shows which render node rendered which bucket during distributed rendering    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayExtraTex</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+Renders the entire scene with one texture mapped on all objects.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayGlobalIllumination</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no*    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The diffuse surface global illumination. Only present if    </span>
+     <span style="color: #003366;">
+<a   href="Indirect_Illumination_(GI).html">Global illumination</a>     </span>
+    <span style="color: #000000;">
+is enabled.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayIlluminance</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">no</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+Displays the illumination in each part of the scene in a similar way to the VRayLightMeter helper.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayLighting</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>*    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The diffuse direct surface lighting.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayLightSelect</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+Allows the user to extract the contribution of a light or a set of lights to the scene to a separate render element.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayMatteShadow</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The matte shadow part of the image.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayMtlID</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no (always off)    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">no</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The material ID of the object.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayMtlSelect</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+This element allows you write the result of a V-Ray compatible material into a separate element. The material can be a top-level material or a sub-material of    </span>
+     <span style="color: #003366;">
+<a   href="VRayBlendMtl.html">VRayBlendMtl</a>    </span>
+    <span style="color: #666666;">
+.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayNormals</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The surface normals.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayObjectID</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no (always off)    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">no</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The object G-buffer ID (set through the node's Properties dialogue).    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayRawGlobalIllumination</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The raw diffuse global illumination (not multiplied by the diffuse surface color). Only present if Global illumination is enabled.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayRawLighting</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The raw diffuse direct illumination before it's multiplied by the diffuse surface color.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayRawReflection</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The pure surface reflection before it's multiplied by the reflection filter color.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayRawRefraction</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The pure surface refraction before it's multiplied by the refraction filter color.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayRawShadow</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The raw light that was blocked by other objects.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayRawTotalLighting</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The sum of all raw lighting - direct and indirect.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayReflection</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The reflections on the surface.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayReflectionFilter</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The reflection filter (the color by which the raw reflections are multiplied to give the final surface reflection). This may be considered as an alpha channel for the reflections.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayRefraction</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">no</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The refractions on the surface.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayRefractionFilter</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The refraction filter (the color by which the raw refractions are multiplied to give the final surface refraction). This may be considered as an alpha channel for the refractions.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayRenderID</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no (always off)    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The node render ID of the object that contributes most to the pixel value.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRaySamplerRate</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+Shows an image where the pixel brightness is directly proportional to the number of samples taken at this pixel.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRaySamplerInfo</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+Shows the amount of sampling for each pixel in the image    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRaySelfIllumination</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The self-illumination of the surface.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayShadow</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The diffuse light that was blocked by other objects.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRaySpecular</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The surface specular highlights.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRaySSS2</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">N/A</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+Renders just the subsurface part of the VRaySSS2 material on a separate layer    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayTotalLighting</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The total lighting in the scene - direct and indirect.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayUnclampedColor</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The unclamped image color.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayVelocity</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The surface velocity. This channel will not be generated if 3d motion blur is enabled.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayWireColor</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The wire color of the object as set in the 3ds Max scene. This can be used to generate masks for the objects based on their wire color.    </span>
+    </p>
+            </td>
+        </tr>
+    <tr>
+            <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<strong class=" "><i class=" ">VRayZDepth</i></strong>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+<i class=" ">yes</i>    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #c08080;">
+no    </span>
+    </p>
+            </td>
+                <td  class="confluenceTd" rowspan="1" colspan="1">
+        <p  >    <span style="color: #000000;">
+The z-depth of the surface.    </span>
+    <span style="color: #000000;">
+<br/>    </span>
+    </p>
+            </td>
+        </tr>
+</tbody>        </table>
+            </div>
+    <p  >    <span style="color: #000000;">
+* For <strong class=" "><i class=" ">Standard</i></strong> materials, the <strong class=" "><i class=" ">VRayLighting</i></strong> element includes the direct and indirect lighting as well as caustics, while the <strong class=" "><i class=" ">VRayGlobalIllumination</i></strong> and <strong class=" "><i class=" ">VRayCaustics</i></strong> elements are black. However for all materials, adding the <strong class=" "><i class=" ">VRayLighting</i></strong>, <strong class=" "><i class=" ">VRayGlobalIllumination</i></strong> and <strong class=" "><i class=" ">VRayCaustics</i></strong> elements always gives the total diffuse surface lighting.    </span>
+<br/>    <span style="color: #000000;">
+     </span>
+<br/>    <span style="color: #000000;">
+** When an element is filtered, it will be dimmed by atmospheric effects like fog etc. However, when an element is unfiltered, it will not be affected by atmospherics.    </span>
+    </p>
+    <div  class="confbox admonition admonition-info">
+                            <span class="admonition-icon confluence-information-macro-icon"></span>
+                <div class="admonition-body">
+    <h4 id="src-1409055_safe-id-UmVuZGVyRWxlbWVudHMtRXhhbXBsZTpSZW5kZXJFbGVtZW50c2FuZENvbWJpbmF0aW9ucw" class="heading "><span>Example: Render Elements and Combinations</span></h4>
+    <p  >    <span style="color: #333399;">
+Here are some examples of render elements and their combinations. Note that the original elements were generated by V-Ray on one pass (no re-rendering required).    </span>
+    </p>
+    <p  >    <span style="color: #333399;">
+Normally, render elements are added to each other in order to reproduce the final result; however, there are a few exceptions:    </span>
+    </p>
+<ul class=" "><li class=" ">    <p  >    <span style="color: #333399;">
+the Raw GI and Raw Lighting elements must be multiplied by the Diffuse element before they are added to the final image.    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #333399;">
+the Shadow element is not, strictly speaking, a part of the image; however, it can be added to the Raw Lighting element to adjust the shadow intensity. Simply adding the two elements produces lighting as though no shadows were computed.    </span>
+    </p>
+</li></ul>    <p  >    <span style="color: #333399;">
+Also note that multiplying the Raw GI element by the Diffuse element will give the Global Illumination element; multiplying the Raw Lighting element by the Diffuse element gives the Lighting element. This gives the user more freedom for adjusting the scene lighting.    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image" src="images/download/attachments/1409055/RenderElements_2.png" alt="images/download/attachments/1409055/RenderElements_2.png"  height="250" />
+        </p>
+    <p  >    <span style="color: #333399;">
+RGB color    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image confluence-thumbnail" src="images/download/thumbnails/1409055/RenderElements_1.png" alt="images/download/thumbnails/1409055/RenderElements_1.png" width="250"  />
+        </p>
+    <p  >    <span style="color: #333399;">
+Real RGB color<br/>Notice that the antialiasing is worse on very bright parts <br/>(the area light and its reflections)    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image" src="images/download/attachments/1409055/RenderElements_3.png" alt="images/download/attachments/1409055/RenderElements_3.png"  height="250" />
+        </p>
+    <p  >    <span style="color: #333399;">
+Self-illumination only    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image" src="images/download/attachments/1409055/RenderElements_4.png" alt="images/download/attachments/1409055/RenderElements_4.png"  height="250" />
+        </p>
+    <p  >    <span style="color: #333399;">
+Direct Lighting only    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image" src="images/download/attachments/1409055/RenderElements_5.png" alt="images/download/attachments/1409055/RenderElements_5.png"  height="250" />
+        </p>
+    <p  >    <span style="color: #333399;">
+Global illumination only    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image" src="images/download/attachments/1409055/RenderElements_6.png" alt="images/download/attachments/1409055/RenderElements_6.png"  height="250" />
+        </p>
+    <p  >    <span style="color: #333399;">
+Reflections only    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image" src="images/download/attachments/1409055/RenderElements_7.png" alt="images/download/attachments/1409055/RenderElements_7.png"  height="250" />
+        </p>
+    <p  >    <span style="color: #333399;">
+Refractions only    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image" src="images/download/attachments/1409055/RenderElements_8.png" alt="images/download/attachments/1409055/RenderElements_8.png"  height="250" />
+        </p>
+    <p  >    <span style="color: #333399;">
+Diffuse color only    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/1409055/RenderElements_9.png" alt="images/download/attachments/1409055/RenderElements_9.png"  height="250" />
+        </p>
+    <p  >    <span style="color: #333399;">
+Raw lighting    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/1409055/RenderElements_10.png" alt="images/download/attachments/1409055/RenderElements_10.png"  height="250" />
+        </p>
+    <p  >    <span style="color: #333399;">
+Shadows only<br/>Note the aliasing at the box shadow. <br/>The RGB Color channel does not require more samples in that area.    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image" src="images/download/attachments/1409055/RenderElements_11.png" alt="images/download/attachments/1409055/RenderElements_11.png"  height="250" />
+        </p>
+    <p  >    <span style="color: #333399;">
+Raw GI only    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/1409055/RenderElements_12.png" alt="images/download/attachments/1409055/RenderElements_12.png"  height="250" />
+        </p>
+    <p  >    <span style="color: #333399;">
+Raw lighting + shadows (added)<br/>The resulting illumination is as though shadows were turned off.    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/1409055/RenderElements_13.png" alt="images/download/attachments/1409055/RenderElements_13.png"  height="250" />
+        </p>
+    <p  >    <span style="color: #333399;">
+Raw lighting * diffuse (multiplied)<br/>The result is the same as the Direct Lighting only channel.    </span>
+    </p>
+    <p  >    <span style="color: #000000;">
+    <img  class="confluence-embedded-image image-center" src="images/download/attachments/1409055/RenderElements_14.png" alt="images/download/attachments/1409055/RenderElements_14.png"  height="250" />
+    </span>
+    </p>
+    <p  >    <span style="color: #333399;">
+Raw GI * diffuse (multiplied)<br/>The result is the same as the GI only channel.    </span>
+    </p>
+    <p  >    <img  class="confluence-embedded-image image-center" src="images/download/attachments/1409055/RenderElements_15.png" alt="images/download/attachments/1409055/RenderElements_15.png"  height="250" />
+        </p>
+    <p  >    <span style="color: #333399;">
+Self-illumination + Direct lighting + Global illumination + Reflection + Refraction (all added)<br/>The result is the same as the Real RGB Color channel.    </span>
+    </p>
+    <p  >    </p>
+        </div>
+    </div>
+    <p  >    </p>
+    </div>
+    <div class="section section-1" id="src-1409055_RenderElements-notesNotes">
+        <h1 class="heading "><span id="src-1409055_RenderElements-notes" class="confluence-anchor-link"></span><span>Notes</span></h1>
+<ul class=" "><li class=" ">    <p  >    <span style="color: #000000;">
+When the    </span>
+     <span style="color: #758bb1;">
+<a   href=" V-Ray_Frame_Buffer.html">V-Ray VFB</a>    </span>
+    <span style="color: #000000;">
+ is enabled, all V-Ray render elements will appear switched off in the <strong class=" "><i class=" ">Render Elements</i></strong> tab inside the <strong class=" "><i class=" ">Render Scene</i></strong> dialogue. This is a work-around so that 3ds Max does not create its own render elements bitmaps - this is not required as the elements are stored in the V-Ray VFB itself. If the V-Ray VFB is used, the render elements can be enabled or disabled by using their own <strong class=" ">vrayVFB</strong> parameter.    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+V-Ray always antialiases with respect to the <strong class=" "><i class=" ">RGB color</i></strong> channel. Therefore, other channels may appear jagged or noisy in areas where V-Ray has placed fewer samples.    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+Render elements will render in Distributed rendering mode, both in the     </span>
+    <span style="color: #758bb1;">
+<a   href=" V-Ray_Frame_Buffer.html">V-Ray VFB</a>    </span>
+     <span style="color: #000000;">
+and the 3ds Max VFB.    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+Render elements require additional storage when rendering and thus increase the amount of RAM taken during the rendering. When rendering to the     </span>
+    <span style="color: #758bb1;">
+<a   href=" V-Ray_Frame_Buffer.html">V-Ray VFB</a>    </span>
+,     <span style="color: #000000;">
+you can reduce this memory by rendering directly to a    </span>
+    <span style="color: #000000;">
+ .vrimg file on disk and not storing the final image in memory.    </span>
+    </p>
+</li><li class=" ">    <p  >    <span style="color: #000000;">
+Render elements may slow down the final image rendering a little bit, depending on the number of elements that the user has selected. They have no effect on GI, reflection, etc. calculations.    </span>
+    </p>
+</li></ul>    </div>
+        </div>
+
+    </article>
+
+
+            <nav id="ht-post-nav">
+                <a href="Unsupported_3ds_Max_Features.html" class="ht-post-nav-prev">
+            <svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                 xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+                <g id="ht-icon-prev" sketch:type="MSArtboardGroup">
+                    <path fill="#000000" d="M16,8 L16,6 L6,6 L6,16 L8,16 L8,8 L16,8 Z" id="Rectangle-2"
+                          sketch:type="MSShapeGroup"
+                          transform="translate(11.000000, 11.000000) rotate(-45.000000) translate(-11.000000, -11.000000) "></path>
+                </g>
+            </svg>
+            <span>Unsupported 3ds Max Features</span>
+        </a>
+                <a href="G-Buffer_Support.html" class="ht-post-nav-next">
+            <svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                 xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+                <g id="ht-icon-next" sketch:type="MSArtboardGroup">
+                    <path fill="#000000" d="M16,8 L16,6 L6,6 L6,16 L8,16 L8,8 L16,8 Z" id="Rectangle-2"
+                          sketch:type="MSShapeGroup"
+                          transform="translate(11.000000, 11.000000) rotate(-225.000000) translate(-11.000000, -11.000000) "></path>
+                </g>
+            </svg>
+            <span>G-Buffer Support</span>
+        </a>
+    </nav>    
+            
+            <article id="html-search-results" class="ht-content" style="display: none;">
+            <header class="ht-content-header">
+                <div id="ht-spacetitle">
+                    <ul>
+                        <li><a href="V-Ray_2.0_for_3ds_Max.html">V-Ray 2.0 for 3ds Max</a></li>
+                    </ul>
+                </div>
+                <h1>Search results</h1>
+            </header>
+            <div id="search-results"></div>
+        </article>
+    
+    <footer id="ht-footer">
+    <a href="#" id="ht-jump-top" class="sp-aui-icon-small sp-aui-iconfont-arrows-up"></a>
+</footer></div>
+
+<div>
+    <div id="ht-mq-detect"></div>
+</div>
+
+    <script src="js/lunr.js"></script>
+    <script src="js/lunr-extras.js"></script>
+    <script src="assets/js/scroll-search.js"></script>
+
+</body>
+</html>
